@@ -3,28 +3,38 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Rigidbody))] // 衝突判定に必須なRigidbodyを強制
 public class EnemyAI : MonoBehaviour
 {
     // エネミーの状態を定義
     private enum EnemyState
     {
-        PatrolWalk, // 巡回（歩き）
-        PatrolIdle, // 巡回（立ち止まり）
-        Chase       // プレイヤー追跡（走り）
+        PatrolWalk,  // 巡回（歩き）
+        PatrolIdle,  // 巡回（立ち止まり）
+        Chase,       // プレイヤー追跡（走り）
+        LookAround   // 見失った場所の周辺を警戒捜索
     }
 
     [Header("--- 索敵設定 ---")]
     [SerializeField] private float searchRadius = 8f;       // プレイヤーを検知する半径
-    [SerializeField] private float searchAngle = 120f;     // プレイヤーを検知する視野角（度数法）
+    [SerializeField] private float searchAngle = 120f;     // プレイヤーを検知する視野角
 
     [Header("--- 移動速度設定 ---")]
     [SerializeField] private float walkSpeed = 1.5f;        // 巡回時の歩行速度
     [SerializeField] private float runSpeed = 4.0f;         // 追跡時の走行速度
 
+    [Header("--- アニメーション再生速度調整 ---")]
+    [SerializeField] private float walkAnimSpeedMultiplier = 1.0f; // 歩行時のアニメーション速度倍率
+    [SerializeField] private float runAnimSpeedMultiplier = 0.5f;  // 走行時のアニメーション速度倍率
+
     [Header("--- 巡回（パトロール）設定 ---")]
     [SerializeField] private float patrolRadius = 5f;       // ランダムに動く範囲の半径
     [SerializeField] private float minIdleTime = 1.5f;      // 立ち止まる最小時間
     [SerializeField] private float maxIdleTime = 4.0f;      // 立ち止まる最大時間
+
+    [Header("--- 見失った後の執着設定 ---")]
+    [SerializeField] private float chasingForgetTime = 5.0f; // プレイヤーを見失ってから諦めるまでの秒数
+    [SerializeField] private float searchAroundRadius = 4f;  // 見失った地点の周りを何メートル索敵するか
 
     // コンポーネントの参照保持用
     private NavMeshAgent agent;
@@ -35,6 +45,14 @@ public class EnemyAI : MonoBehaviour
     private EnemyState currentState;
     private float idleTimer;
     private float currentIdleDuration;
+    private float forgetTimer;             // 見失ってからの経過時間計測用
+    private Vector3 lastSeenPosition;     // プレイヤーを最後に見失った座標
+
+    // 壁引っかかり（スタック）対策用の変数
+    private Vector3 lastPosition;
+    private float stuckTimer;
+    private const float StuckCheckInterval = 0.5f;
+    private const float StuckDistanceThreshold = 0.05f;
 
     // アニメーターのパラメーターID
     private readonly int speedHash = Animator.StringToHash("Speed");
@@ -42,14 +60,12 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
-        // 必要なコンポーネントを自動取得
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
     }
 
     private void Start()
     {
-        // "Player" タグが付いたオブジェクトを探して位置への参照を取得
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -60,7 +76,6 @@ public class EnemyAI : MonoBehaviour
             Debug.LogError("ヒエラルキー上に 'Player' タグに設定されたオブジェクトが見つかりません。");
         }
 
-        // エラー防止対策：もし開始時にNavMeshの上に載っていなければ、強制的に一番近いNavMesh上に接地させる
         if (!agent.isOnNavMesh)
         {
             NavMeshHit hit;
@@ -68,25 +83,18 @@ public class EnemyAI : MonoBehaviour
             {
                 agent.Warp(hit.position);
             }
-            else
-            {
-                Debug.LogWarning($"{gameObject.name} の近くに NavMesh が見つかりません。床がベイクされているか、配置を確認してください。");
-            }
         }
 
-        // 初期状態は立ち止まり（パトロール待機）からスタート
+        lastPosition = transform.position;
         TransitionToState(EnemyState.PatrolIdle);
     }
 
     private void Update()
     {
-        // プレイヤーがシーン内に存在しない、またはAgentがNavMesh上に有効化されていない場合はエラー防止のため処理をスキップ
         if (playerTransform == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled) return;
 
-        // 毎フレーム、プレイヤーが視界内（索敵範囲内）にいるかをチェック
         bool canSeePlayer = CheckForPlayer();
 
-        // 状態（ステート）に応じた行動分岐
         switch (currentState)
         {
             case EnemyState.PatrolWalk:
@@ -100,54 +108,78 @@ public class EnemyAI : MonoBehaviour
             case EnemyState.Chase:
                 HandleChase(canSeePlayer);
                 break;
+
+            case EnemyState.LookAround:
+                HandleLookAround(canSeePlayer);
+                break;
         }
 
-        // アニメーターへ現在の移動速度を伝える
-        animator.SetFloat(speedHash, agent.velocity.magnitude);
+        UpdateAnimationSpeed();
     }
 
-    /// <summary>
-    /// 状態を切り替え、それに伴う初期設定（速度やアニメーションフラグ）を行う関数
-    /// </summary>
+    private void UpdateAnimationSpeed()
+    {
+        float currentPhysicalSpeed = agent.velocity.magnitude;
+        float finalAnimSpeed = 0f;
+
+        if (currentState == EnemyState.Chase)
+        {
+            finalAnimSpeed = currentPhysicalSpeed * runAnimSpeedMultiplier;
+        }
+        else if (currentState == EnemyState.PatrolWalk || currentState == EnemyState.LookAround)
+        {
+            finalAnimSpeed = currentPhysicalSpeed * walkAnimSpeedMultiplier;
+        }
+        else
+        {
+            finalAnimSpeed = 0f;
+        }
+
+        animator.SetFloat(speedHash, finalAnimSpeed);
+    }
+
     private void TransitionToState(EnemyState newState)
     {
         currentState = newState;
 
-        // 状態遷移時にNavMesh上にいない場合はNavMesh操作をスキップしてエラーを防ぐ
         if (!agent.isOnNavMesh) return;
+
+        stuckTimer = 0f;
+        lastPosition = transform.position;
 
         switch (currentState)
         {
             case EnemyState.PatrolIdle:
-                agent.isStopped = true; // ナビゲーションによる移動を一時停止
+                agent.isStopped = true;
                 agent.velocity = Vector3.zero;
                 animator.SetBool(isChasingHash, false);
-
-                // 次に動き出すまでの時間をランダムで決定
                 currentIdleDuration = Random.Range(minIdleTime, maxIdleTime);
                 idleTimer = 0f;
                 break;
 
             case EnemyState.PatrolWalk:
                 agent.isStopped = false;
-                agent.speed = walkSpeed; // 歩き速度を適用
+                agent.speed = walkSpeed;
                 animator.SetBool(isChasingHash, false);
-
-                // ランダムな次の目的地を設定
-                SetRandomDestination();
+                SetRandomDestination(transform.position, patrolRadius);
                 break;
 
             case EnemyState.Chase:
                 agent.isStopped = false;
-                agent.speed = runSpeed; // 走り速度を適用
+                agent.speed = runSpeed;
                 animator.SetBool(isChasingHash, true);
+                break;
+
+            case EnemyState.LookAround:
+                agent.isStopped = false;
+                agent.speed = walkSpeed;
+                animator.SetBool(isChasingHash, false);
+                forgetTimer = 0f;
+                agent.SetDestination(lastSeenPosition);
                 break;
         }
     }
 
-    /// <summary>
-    /// 巡回移動中の処理
-    /// </summary>
     private void HandlePatrolWalk(bool canSeePlayer)
     {
         if (canSeePlayer)
@@ -156,16 +188,15 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // 目的地に十分近づいた、または経路計算が完了してこれ以上進めなくなった場合
         if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
             TransitionToState(EnemyState.PatrolIdle);
+            return;
         }
+
+        CheckStuckStatus();
     }
 
-    /// <summary>
-    /// 巡回中の立ち止まり（待機）処理
-    /// </summary>
     private void HandlePatrolIdle(bool canSeePlayer)
     {
         if (canSeePlayer)
@@ -174,7 +205,6 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // 時間を経過させ、規定時間を超えたら再び歩き出す
         idleTimer += Time.deltaTime;
         if (idleTimer >= currentIdleDuration)
         {
@@ -182,59 +212,90 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// プレイヤー追跡中の処理
-    /// </summary>
     private void HandleChase(bool canSeePlayer)
     {
         if (!canSeePlayer)
         {
-            // プレイヤーを見失ったら巡回（立ち止まり）に戻る
-            TransitionToState(EnemyState.PatrolIdle);
+            lastSeenPosition = playerTransform.position;
+            TransitionToState(EnemyState.LookAround);
             return;
         }
 
-        // 常にプレイヤーの現在地を目的地として更新し続ける
         agent.SetDestination(playerTransform.position);
     }
 
-    /// <summary>
-    /// ランダムな目的地をNavMesh上で計算して設定する
-    /// </summary>
-    private void SetRandomDestination()
+    private void HandleLookAround(bool canSeePlayer)
+    {
+        if (canSeePlayer)
+        {
+            TransitionToState(EnemyState.Chase);
+            return;
+        }
+
+        forgetTimer += Time.deltaTime;
+        if (forgetTimer >= chasingForgetTime)
+        {
+            TransitionToState(EnemyState.PatrolWalk);
+            return;
+        }
+
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            SetRandomDestination(lastSeenPosition, searchAroundRadius);
+        }
+
+        CheckStuckStatus();
+    }
+
+    private void CheckStuckStatus()
+    {
+        float movedDistance = Vector3.Distance(transform.position, lastPosition);
+
+        if (movedDistance < StuckDistanceThreshold)
+        {
+            stuckTimer += Time.deltaTime;
+            if (stuckTimer >= StuckCheckInterval)
+            {
+                if (currentState == EnemyState.LookAround)
+                    TransitionToState(EnemyState.PatrolWalk);
+                else
+                    TransitionToState(EnemyState.PatrolIdle);
+            }
+        }
+        else
+        {
+            stuckTimer = 0f;
+            lastPosition = transform.position;
+        }
+    }
+
+    private void SetRandomDestination(Vector3 centerOrigin, float radius)
     {
         if (!agent.isOnNavMesh) return;
 
-        // 自身の現在地を中心に、設定されたパトロール半径内のランダムな位置を球状に取得
-        Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
-        randomDirection += transform.position;
+        // 捜索中やパトロール中に、ドアが閉まっていても向こう側に行けるよう
+        // ドアオブジェクトそのものはNavMeshのベイク対象から外し、床を地続きに設定してください。
+        Vector3 randomDirection = Random.insideUnitSphere * radius;
+        randomDirection += centerOrigin;
 
         NavMeshHit hit;
-        // 計算された位置から一番近いNavMesh上の有効な座標（着地点）を検索する
-        if (NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(randomDirection, out hit, radius, NavMesh.AllAreas))
         {
             agent.SetDestination(hit.position);
         }
     }
 
-    /// <summary>
-    /// プレイヤーが設定された視界（距離・角度）に入っているかを判定する
-    /// </summary>
     private bool CheckForPlayer()
     {
         Vector3 directionToPlayer = playerTransform.position - transform.position;
         float distance = directionToPlayer.magnitude;
 
-        // 1. そもそも索敵半径を超えて離れている場合は不成立
         if (distance > searchRadius) return false;
 
-        // 2. 視界の「角度」をチェック
         float angle = Vector3.Angle(transform.forward, directionToPlayer);
 
-        // なす角が「視野角の半分」以下であれば、正面の扇形の中にプレイヤーがいると判定
         if (angle <= searchAngle * 0.5f)
         {
-            // 3. 壁などの遮蔽物を考慮するためのレイキャスト
             Vector3 rayStart = transform.position + Vector3.up * 1f;
             Vector3 rayDirection = (playerTransform.position + Vector3.up * 1f) - rayStart;
 
@@ -251,12 +312,35 @@ public class EnemyAI : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// 【重要】敵が何かに体当たりした瞬間の衝突イベント処理
+    /// </summary>
+    private void OnCollisionEnter(Collision collision)
+    {
+        // ぶつかった相手（またはその親）が "Door" タグを持っているか調べる
+        if (collision.gameObject.CompareTag("Door") || (collision.transform.parent != null && collision.transform.parent.CompareTag("Door")))
+        {
+            // プレイヤーのRayと同様、コンポーネントを自身または親から安全に取得する
+            NewDoorMech doorScript = collision.gameObject.GetComponentInParent<NewDoorMech>();
+
+            if (doorScript != null)
+            {
+                // ドアが閉まっている場合のみ、開くフラグをONにする
+                if (!doorScript.doorBool)
+                {
+                    doorScript.doorBool = true;
+                    // デバッグログ：正常にぶつかって開けたことをコンソールに表示
+                    Debug.Log("敵が扉に接触したため、扉を開けました。");
+                }
+            }
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, searchRadius);
 
-        // 視野角の限界線を2本描画して扇形を表現
         Vector3 forward = transform.forward;
         Vector3 leftBoundary = Quaternion.Euler(0, -searchAngle * 0.5f, 0) * forward;
         Vector3 rightBoundary = Quaternion.Euler(0, searchAngle * 0.5f, 0) * forward;
@@ -264,5 +348,11 @@ public class EnemyAI : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + leftBoundary * searchRadius);
         Gizmos.DrawLine(transform.position, transform.position + rightBoundary * searchRadius);
+
+        if (currentState == EnemyState.LookAround)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(lastSeenPosition, searchAroundRadius);
+        }
     }
 }
