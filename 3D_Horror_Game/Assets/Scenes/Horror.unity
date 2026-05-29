@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 2
+  m_AmbientIntensity: 0
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -440,12 +440,19 @@ MonoBehaviour:
   walkSpeed: 1.5
   runSpeed: 4
   walkAnimSpeedMultiplier: 1
-  runAnimSpeedMultiplier: 0.5
-  patrolRadius: 5
-  minIdleTime: 1.5
-  maxIdleTime: 4
+  runAnimSpeedMultiplier: 0.75
+  patrolRadius: 10
+  minIdleTime: 5
+  maxIdleTime: 10
+  chasePredictDistance: 4
+  visionLostBufferTime: 1.5
+  pathRecordInterval: 0.2
+  maxRecordedPositions: 20
+  waypointTolerance: 1.2
   chasingForgetTime: 5
   searchAroundRadius: 4
+  doorCheckRadius: 1.2
+  doorCheckInterval: 0.1
 --- !u!195 &6064254
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -33787,8 +33794,15 @@ MonoBehaviour:
   patrolRadius: 5
   minIdleTime: 1.5
   maxIdleTime: 4
+  chasePredictDistance: 4
+  visionLostBufferTime: 1.5
+  pathRecordInterval: 0.2
+  maxRecordedPositions: 20
+  waypointTolerance: 1.2
   chasingForgetTime: 5
   searchAroundRadius: 4
+  doorCheckRadius: 1.2
+  doorCheckInterval: 0.1
 --- !u!195 &649674759
 NavMeshAgent:
   m_ObjectHideFlags: 0
