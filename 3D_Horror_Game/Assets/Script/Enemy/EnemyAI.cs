@@ -17,13 +17,20 @@ public class EnemyAI : MonoBehaviour
         LookAround       // 最終地点まで追いついた後、周辺を警戒捜索
     }
 
+    [Header("--- オーディオ設定 ---")]
+    [SerializeField] private AudioManager audioManager;     // BGM制御用のマネージャー参照
+
     [Header("--- 索敵設定 ---")]
-    [SerializeField] private float searchRadius = 12f;      // プレイヤーを検知する半径
+    [SerializeField] private float searchRadius = 25f;      // プレイヤーを検知する半径
     [SerializeField] private float searchAngle = 140f;      // プレイヤーを検知する視野角
 
     [Header("--- 移動速度設定 ---")]
     [SerializeField] private float walkSpeed = 1.5f;        // 巡回・警戒時の歩行速度
     [SerializeField] private float runSpeed = 4.5f;         // 追跡・突進時の走行速度
+
+    [Header("--- 回転速度設定（度/秒） ---")]
+    [SerializeField] private float normalTurnSpeed = 180f;   // 【通常時】巡回や警戒状態などの通常方向転換速度
+    [SerializeField] private float chaseTurnSpeed = 600f;  // 【追加：追跡時】プレイヤーを追いかけている時の超高速回転速度
 
     [Header("--- アニメーション再生速度調整 ---")]
     [SerializeField] private float walkAnimSpeedMultiplier = 1.0f; // 歩行時のアニメーション速度倍率
@@ -35,12 +42,12 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float maxIdleTime = 4.0f;      // 立ち止まる最大時間
 
     [Header("--- 見失った直後の直線突進設定 ---")]
-    [SerializeField] private float chasePredictDistance = 4.0f; // 見失った瞬間、進行方向の「何メートル先」までまっすぐ突っ込ませるか
+    [SerializeField] private float chasePredictDistance = 6.0f; // 見失った瞬間、進行方向の「何メートル先」までまっすぐ突っ込ませるか
     [SerializeField] private float visionLostBufferTime = 1.5f; // 直線突進（LinearDash）を維持する最大秒数
 
     [Header("--- 見失った後の足跡追跡設定 ---")]
     [SerializeField] private float pathRecordInterval = 0.15f; // プレイヤーの足跡を記録する時間間隔
-    [SerializeField] private int maxRecordedPositions = 40;    // 保持する足跡の最大記録数（少し余裕を持たせて40に拡張）
+    [SerializeField] private int maxRecordedPositions = 40;    // 保持する足跡の最大記録数
     [SerializeField] private float waypointTolerance = 1.3f;  // 足跡を踏破したと判定する敵との距離
     [SerializeField] private float chasingForgetTime = 5.0f;  // 足跡を辿りきってから完全に見切るまでの秒数
     [SerializeField] private float searchAroundRadius = 5f;   // 最終地点の周りを何メートル索敵するか
@@ -63,7 +70,7 @@ public class EnemyAI : MonoBehaviour
     private Vector3 lastPlayerPosition;
     private Vector3 playerMoveDirection = Vector3.forward;
 
-    // 足跡データ。引き返し防止のためリスト構造で管理します
+    // 足跡データ
     private List<Vector3> playerPositionHistory = new List<Vector3>();
     private Queue<Vector3> activeChasePath = new Queue<Vector3>();
 
@@ -77,6 +84,9 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+        // スクリプト側で滑らかなカスタム回転を行うため、Agentの自動回転をオフにする
+        agent.updateRotation = false;
 
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
@@ -99,6 +109,12 @@ public class EnemyAI : MonoBehaviour
             {
                 agent.Warp(hit.position);
             }
+        }
+
+        // 初期状態でオーディオマネージャーがあれば通常BGM状態から開始
+        if (audioManager != null)
+        {
+            audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
         }
 
         TransitionToState(EnemyState.PatrolIdle);
@@ -135,7 +151,33 @@ public class EnemyAI : MonoBehaviour
                 break;
         }
 
+        ApplyCustomRotation();
         UpdateAnimation();
+    }
+
+    private void ApplyCustomRotation()
+    {
+        Vector3 targetDirection = Vector3.zero;
+        float currentTurnSpeed = normalTurnSpeed;
+
+        if (currentState == EnemyState.Chase && playerTransform != null)
+        {
+            targetDirection = playerTransform.position - transform.position;
+            currentTurnSpeed = chaseTurnSpeed;
+        }
+        else
+        {
+            targetDirection = agent.velocity;
+            currentTurnSpeed = normalTurnSpeed;
+        }
+
+        targetDirection.y = 0f;
+
+        if (targetDirection.magnitude > 0.1f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, currentTurnSpeed * Time.deltaTime);
+        }
     }
 
     private void CalculatePlayerVectorAndPath()
@@ -263,18 +305,13 @@ public class EnemyAI : MonoBehaviour
 
         visionLostTimer += Time.deltaTime;
 
-        // 直線突進が終わる、または目標地点にほぼ到達したら足跡追跡モードに切り替える
         if (visionLostTimer >= visionLostBufferTime || (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance))
         {
-            // 【最重要】不自然な引き返しを防止する足跡の最適化関数を呼び出す
             BuildOptimizedChasePath();
             TransitionToState(EnemyState.PredictedChase);
         }
     }
 
-    /// <summary>
-    /// 敵の現在地より「後ろ」にある古い足跡をカットし、最適な追跡ルートを再構築するロジック
-    /// </summary>
     private void BuildOptimizedChasePath()
     {
         activeChasePath.Clear();
@@ -283,7 +320,6 @@ public class EnemyAI : MonoBehaviour
         int closestIndex = 0;
         float minDistance = float.MaxValue;
 
-        // 1. 敵の現在地から「最も近い足跡」がどれかを検索する
         for (int i = 0; i < playerPositionHistory.Count; i++)
         {
             float dist = Vector3.Distance(transform.position, playerPositionHistory[i]);
@@ -294,14 +330,12 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // 2. 最も近い足跡（closestIndex）よりも古い足跡（インデックスが若いもの）は全て無視！
-        // これにより、過去に遡って戻ってしまう現象を完全にシャットアウトします。
         for (int i = closestIndex; i < playerPositionHistory.Count; i++)
         {
             activeChasePath.Enqueue(playerPositionHistory[i]);
         }
 
-        Debug.Log($"【経路最適化】不自然な引き返しを防止。古い足跡を {closestIndex} 個スキップしました。");
+        Debug.Log($"【経路最適化】古い足跡を {closestIndex} 個スキップしました。");
     }
 
     private void HandlePredictedChase(bool canSeePlayer)
@@ -419,6 +453,26 @@ public class EnemyAI : MonoBehaviour
                 forgetTimer = 0f;
                 agent.SetDestination(lastSeenPosition);
                 break;
+        }
+
+        // 状態変化をAudioManagerに通達する
+        if (audioManager != null)
+        {
+            if (currentState == EnemyState.Chase)
+            {
+                // プレイヤーを発見（Chase状態に移行）。直前の状態に応じた挙動の選別はAudioManager側で行う
+                audioManager.ChangeBGMState(AudioManager.BGMMode.AlertChase);
+            }
+            else if (currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase)
+            {
+                // 見失った直後の突進、および足跡追跡モード中は追跡BGMを維持しつつ、音量を0.5（半分）に落とす
+                audioManager.ChangeBGMState(AudioManager.BGMMode.LostTracking);
+            }
+            else
+            {
+                // 警戒捜索（LookAround）や通常の巡回に戻った時は、巡回用BGMへフェードで戻す
+                audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+            }
         }
     }
 
