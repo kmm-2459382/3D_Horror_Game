@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 2
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -26982,6 +26982,190 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 500104910}
   m_Mesh: {fileID: 4300002, guid: 3fa9e534105fd0146a4eadb0e12b19a7, type: 3}
+--- !u!1 &501341060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 501341062}
+  - component: {fileID: 501341061}
+  m_Layer: 0
+  m_Name: DoorController_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &501341061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 501341060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46617dfd14efab2448a3cdb153f55355, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorController
+  audioManager: {fileID: 55204385}
+  roomDoorsList:
+  - roomName: "\u5EFA\u7269\u5168\u4F53"
+    doorGroups:
+    - groupName: "\u51FA\u5165\u53E3"
+      targetDoors:
+      - {fileID: 1810396955}
+      - {fileID: 1937330284}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u5C4B\u4E0A"
+      targetDoors:
+      - {fileID: 1996939952}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E00\u968E\u5DE6\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 396322604}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30D9\u30E9\u30F3\u30C01"
+      targetDoors:
+      - {fileID: 525350184}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 556302901}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 290139679}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30D9\u30E9\u30F3\u30C02"
+      targetDoors:
+      - {fileID: 101682122}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E00\u968E\u53F3\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 1899499656}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30D9\u30E9\u30F3\u30C01"
+      targetDoors:
+      - {fileID: 22223188}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 586274459}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 769166357}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30D9\u30E9\u30F3\u30C02"
+      targetDoors:
+      - {fileID: 658487297}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E8C\u968E\u5DE6\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 1647660027}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 1757588150}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 1197063034}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E8C\u968E\u53F3\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 1045942976}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 1952595114}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 106981831}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E09\u968E\u5DE6\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 832226026}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 26091059}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 1818576905}
+      isLocked: 0
+      doorId: 
+  - roomName: "\u4E09\u968E\u53F3\u306E\u90E8\u5C4B"
+    doorGroups:
+    - groupName: "\u5165\u53E3"
+      targetDoors:
+      - {fileID: 875589131}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30C8\u30A4\u30EC"
+      targetDoors:
+      - {fileID: 673597113}
+      isLocked: 0
+      doorId: 
+    - groupName: "\u30AD\u30C3\u30C1\u30F3"
+      targetDoors:
+      - {fileID: 1243377965}
+      isLocked: 0
+      doorId: 
+  lockedSE: {fileID: 0}
+  unlockSE: {fileID: 0}
+  soundVolume: 0.8
+--- !u!4 &501341062
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 501341060}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &504640953
 GameObject:
   m_ObjectHideFlags: 0
@@ -208689,3 +208873,4 @@ SceneRoots:
   - {fileID: 1875161217764922481}
   - {fileID: 6064258}
   - {fileID: 55204384}
+  - {fileID: 501341062}

@@ -53,7 +53,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float searchAroundRadius = 5f;   // 最終地点の周りを何メートル索敵するか
 
     [Header("--- 扉自動検知・開放設定 ---")]
-    [SerializeField] private float doorCheckRadius = 1.2f;    // 敵が目の前の扉を感知する半径
+    [SerializeField] private float doorCheckRadius = 1.8f;    // 敵が前方の扉を検知する前方方向の前方射程（距離）
     [SerializeField] private float doorCheckInterval = 0.1f;  // 扉をスキャンする時間間隔
 
     private NavMeshAgent agent;
@@ -202,6 +202,10 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 【修正点】進行方向（目的地のベクトル）に向かってレイを飛ばし、
+    /// 通り道にあるドアのみを検知して強制的に開放します。
+    /// </summary>
     private void CheckAndOpenNearbyDoors()
     {
         doorCheckTimer += Time.deltaTime;
@@ -209,16 +213,30 @@ public class EnemyAI : MonoBehaviour
         {
             doorCheckTimer = 0f;
 
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position + Vector3.up * 0.5f, doorCheckRadius);
-            foreach (var hitCollider in hitColliders)
+            // 敵が現在移動しようとしている理想の移動ベクトルを取得
+            Vector3 moveDirection = agent.desiredVelocity.normalized;
+
+            // 静止している時（巡回待機中など）は、現在の敵の正面方向を代入
+            if (moveDirection.magnitude < 0.1f)
             {
-                if (hitCollider.CompareTag("Door") || (hitCollider.transform.parent != null && hitCollider.transform.parent.CompareTag("Door")))
+                moveDirection = transform.forward;
+            }
+
+            // レイの発射位置（敵の腰の高さ付近）
+            Vector3 rayStartPos = transform.position + Vector3.up * 0.8f;
+
+            RaycastHit hit;
+            // 進行方向に向けて、設定された感知射程分だけ見えない光線(Ray)を飛ばす
+            if (Physics.Raycast(rayStartPos, moveDirection, out hit, doorCheckRadius))
+            {
+                // レイが衝突したオブジェクト、またはその親が「Door」タグを持っているか確認
+                if (hit.collider.CompareTag("Door") || (hit.transform.parent != null && hit.transform.parent.CompareTag("Door")))
                 {
-                    NewDoorMech doorScript = hitCollider.gameObject.GetComponentInParent<NewDoorMech>();
+                    NewDoorMech doorScript = hit.collider.gameObject.GetComponentInParent<NewDoorMech>();
                     if (doorScript != null && !doorScript.doorBool)
                     {
                         doorScript.doorBool = true;
-                        Debug.Log("【センサー検知】敵の進路に扉を発見したため、強制的に開けました。");
+                        Debug.Log("【進路上の扉検知】目的地への経路上に扉を発見したため、開けました。");
                     }
                 }
             }
@@ -460,17 +478,14 @@ public class EnemyAI : MonoBehaviour
         {
             if (currentState == EnemyState.Chase)
             {
-                // プレイヤーを発見（Chase状態に移行）。直前の状態に応じた挙動の選別はAudioManager側で行う
                 audioManager.ChangeBGMState(AudioManager.BGMMode.AlertChase);
             }
             else if (currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase)
             {
-                // 見失った直後の突進、および足跡追跡モード中は追跡BGMを維持しつつ、音量を0.5（半分）に落とす
                 audioManager.ChangeBGMState(AudioManager.BGMMode.LostTracking);
             }
             else
             {
-                // 警戒捜索（LookAround）や通常の巡回に戻った時は、巡回用BGMへフェードで戻す
                 audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
             }
         }
@@ -501,8 +516,11 @@ public class EnemyAI : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position + Vector3.up * 0.5f, doorCheckRadius);
+        // 3D空間上のデバッグ用: 敵の進行方向に沿って検知レイをシミュレートして線を描画
+        Vector3 dir = (agent != null && agent.isOnNavMesh && agent.desiredVelocity.magnitude > 0.1f) ? agent.desiredVelocity.normalized : transform.forward;
+        Vector3 start = transform.position + Vector3.up * 0.8f;
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(start, start + dir * doorCheckRadius);
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, searchRadius);
