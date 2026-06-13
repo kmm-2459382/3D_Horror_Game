@@ -204,7 +204,8 @@ public class EnemyAI : MonoBehaviour
 
     /// <summary>
     /// 【修正点】進行方向（目的地のベクトル）に向かってレイを飛ばし、
-    /// 通り道にあるドアのみを検知して強制的に開放します。
+    /// ドアを検知した際はDoorControllerのシステムを介して、連動登録されたすべてのドアを同時に開放します。
+    /// ロックされている場合は停止してすり抜けを防ぎます。
     /// </summary>
     private void CheckAndOpenNearbyDoors()
     {
@@ -235,8 +236,42 @@ public class EnemyAI : MonoBehaviour
                     NewDoorMech doorScript = hit.collider.gameObject.GetComponentInParent<NewDoorMech>();
                     if (doorScript != null && !doorScript.doorBool)
                     {
-                        doorScript.doorBool = true;
-                        Debug.Log("【進路上の扉検知】目的地への経路上に扉を発見したため、開けました。");
+                        // シーン内のDoorControllerを取得
+                        DoorController doorController = FindFirstObjectByType<DoorController>();
+                        if (doorController != null)
+                        {
+                            // 扉がロックされているか確認
+                            if (doorController.IsDoorLocked(doorScript))
+                            {
+                                // 【すり抜け防止対策】扉がロックされている場合は強制的に移動を停止させ、すり抜けを防ぐ
+                                agent.isStopped = true;
+                                agent.velocity = Vector3.zero;
+
+                                // 追跡中や突進中であれば、扉で行き止まりになったため強制的に見失い・周囲警戒状態へ落とす
+                                if (currentState == EnemyState.Chase || currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase)
+                                {
+                                    TransitionToState(EnemyState.LookAround);
+                                }
+                                else if (currentState == EnemyState.PatrolWalk)
+                                {
+                                    TransitionToState(EnemyState.PatrolIdle);
+                                }
+
+                                Debug.Log("【進路上の扉検知】扉はロックされています。すり抜け防止のため敵の移動を遮断しました。");
+                                return;
+                            }
+
+                            // ロックされていない場合は、DoorController経由で開く（インベントリはnullを渡すことで通常開閉処理を走らせる）
+                            // これにより、同じDoorGroupSettingsに登録されている他のドアも連動してすべて開きます
+                            doorController.Interact(doorScript, null);
+                            Debug.Log("【進路上の扉検知】目的地への経路上に扉を発見したため、連動グループごと開けました。");
+                        }
+                        else
+                        {
+                            // 万が一シーン内にDoorControllerが無い場合のフォールバック（従来通り単独開放）
+                            doorScript.doorBool = true;
+                            Debug.Log("【進路上の扉検知】DoorControllerが見つからないため、単独で扉を開けました。");
+                        }
                     }
                 }
             }
@@ -448,6 +483,9 @@ public class EnemyAI : MonoBehaviour
                 agent.isStopped = false;
                 visionLostTimer = 0f;
 
+                // 既にロックされた扉の正面などで停止信号が出ている場合は目的地設定をスキップ
+                if (agent.isStopped) break;
+
                 Vector3 targetDashPos = lastSeenPosition + (playerMoveDirection * chasePredictDistance);
                 NavMeshHit hit;
                 if (NavMesh.SamplePosition(targetDashPos, out hit, chasePredictDistance, NavMesh.AllAreas))
@@ -509,7 +547,25 @@ public class EnemyAI : MonoBehaviour
             NewDoorMech doorScript = collision.gameObject.GetComponentInParent<NewDoorMech>();
             if (doorScript != null && !doorScript.doorBool)
             {
-                doorScript.doorBool = true;
+                DoorController doorController = FindFirstObjectByType<DoorController>();
+                if (doorController != null)
+                {
+                    // 物理衝突時も同様にロック状態を確認
+                    if (doorController.IsDoorLocked(doorScript))
+                    {
+                        // 衝突時にも速度をゼロにして押し込み・めり込みによるすり抜けを防止
+                        agent.isStopped = true;
+                        agent.velocity = Vector3.zero;
+                        return;
+                    }
+
+                    // 衝突時もDoorController経由で連動開放する
+                    doorController.Interact(doorScript, null);
+                }
+                else
+                {
+                    doorScript.doorBool = true;
+                }
             }
         }
     }

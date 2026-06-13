@@ -109432,6 +109432,8 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 1024
+  doorController: {fileID: 501341061}
+  playerInventory: {fileID: 8997996946438873210}
 --- !u!1 &2085199777
 GameObject:
   m_ObjectHideFlags: 0
@@ -205418,6 +205420,7 @@ GameObject:
   - component: {fileID: 8616685848286051023}
   - component: {fileID: 2083252332}
   - component: {fileID: 2083252335}
+  - component: {fileID: 8997996946438873210}
   m_Layer: 6
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -207671,6 +207674,19 @@ Transform:
   - {fileID: 1712696220}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8997996946438873210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848286051011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a657a6398b5521444bc4e099a6f1e65b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  possessedKeyIds: []
 --- !u!1 &8999046890075383079
 GameObject:
   m_ObjectHideFlags: 0

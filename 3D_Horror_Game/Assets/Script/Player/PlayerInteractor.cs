@@ -10,6 +10,13 @@ public class PlayerInteractor : MonoBehaviour
     [Tooltip("ドアに設定したInteractableレイヤーを指定します")]
     public LayerMask interactableLayer;
 
+    [Header("--- 外部システム連携 ---")]
+    [Tooltip("シーン上にある DoorSystemManager (DoorController) をここに割り当ててください")]
+    [SerializeField] private DoorController doorController;
+
+    [Tooltip("プレイヤー自身にある PlayerInventory スクリプトをここに割り当ててください")]
+    [SerializeField] private PlayerInventory playerInventory;
+
     private Camera mainCamera;
 
     void Start()
@@ -20,6 +27,16 @@ public class PlayerInteractor : MonoBehaviour
         if (mainCamera == null)
         {
             Debug.LogError("【PlayerInteractor】メインカメラ(Main Cameraタグ)が見つかりません。カメラのTagを確認してください。");
+        }
+
+        // インスペクターでの割り当て忘れ防止チェック
+        if (doorController == null)
+        {
+            Debug.LogError($"【設定エラー】{gameObject.name} の PlayerInteractor に「Door Controller」が割り当てられていません！");
+        }
+        if (playerInventory == null)
+        {
+            Debug.LogError($"【設定エラー】{gameObject.name} の PlayerInteractor に「Player Inventory」が割り当てられていません！");
         }
     }
 
@@ -49,9 +66,17 @@ public class PlayerInteractor : MonoBehaviour
 
             if (door != null)
             {
-                // ドアが見つかったら、直接ドアの開閉関数を実行（命令）します！
-                Debug.Log($"【レイキャスト成功】正面のドア「{hit.collider.gameObject.name}」を発見。開閉命令を送ります。");
-                door.ToggleDoor();
+                // 【修正箇所】ドア単体の開閉を直接呼ぶのをやめ、必ず一元管理マネージャーを介して命令を送るように変更
+                if (doorController != null)
+                {
+                    Debug.Log($"【マネージャー経由】{hit.collider.gameObject.name} へのインタラクトを DoorController に委託します。");
+                    doorController.Interact(door, playerInventory);
+                }
+                else
+                {
+                    Debug.LogError("【実行エラー】DoorControllerの参照がないため、ロック・連動処理を行えません。単体開閉で代用します。");
+                    door.ToggleDoor(); // バックアップ用の単体開閉
+                }
             }
             else
             {
