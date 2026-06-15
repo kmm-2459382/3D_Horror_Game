@@ -19,9 +19,12 @@ public class PlayerInteractor : MonoBehaviour
 
     private Camera mainCamera;
 
+    // 【チャタリング・2連打防止用】
+    private float lastInteractTime = 0f;
+    private const float interactCooldown = 0.3f; // 次のクリックを受け付けるまでの秒数(0.3秒)
+
     void Start()
     {
-        // プレイヤーのメインカメラを自動取得
         mainCamera = Camera.main;
 
         if (mainCamera == null)
@@ -29,7 +32,6 @@ public class PlayerInteractor : MonoBehaviour
             Debug.LogError("【PlayerInteractor】メインカメラ(Main Cameraタグ)が見つかりません。カメラのTagを確認してください。");
         }
 
-        // インスペクターでの割り当て忘れ防止チェック
         if (doorController == null)
         {
             Debug.LogError($"【設定エラー】{gameObject.name} の PlayerInteractor に「Door Controller」が割り当てられていません！");
@@ -41,51 +43,82 @@ public class PlayerInteractor : MonoBehaviour
     }
 
     /// <summary>
-    /// Input System（Broadcast Messages）から呼び出される関数。
-    /// スクショで設定していただいた「Interact」アクション（左クリック）に対応しています。
+    /// 新しいInputSystemの「Interact」ボタンなどが押されたときに呼び出される関数
     /// </summary>
     public void OnInteract(InputValue value)
     {
-        // マウス左クリックが「押された瞬間」だけ処理を先に進める
-        if (!value.isPressed) return;
-
         if (mainCamera == null) return;
 
-        // 画面中央（クロスヘアの場所）から前方に飛ばす光線（Ray）を作成
+        // 【修正点】Input Systemの「ボタンが離された瞬間」の呼び出しなどは無視する
+        // かつ、前回のクリックから0.3秒経っていない場合は、連打とみなして処理を強制拒否する
+        if (Time.time - lastInteractTime < interactCooldown)
+        {
+            return;
+        }
+
+        // 画面の中央から前方に飛ばす光線（Ray）を作成
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
-        // デバッグ用：Unityのシーンビューに、クリックした瞬間の光線を1秒間だけ赤い線で表示します
         Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red, 1.0f);
 
-        // 指定した距離（interactDistance）の中に、特定のレイヤー（interactableLayer）を持つオブジェクトがあるか見張ります
         if (Physics.Raycast(ray, out hit, interactDistance, interactableLayer))
         {
-            // 光線が当たったオブジェクト（またはその親）に「NewDoorMech」スクリプトがついているか探します
+            // --- 1. ドアへのインタラクト処理 ---
             NewDoorMech door = hit.collider.GetComponentInParent<NewDoorMech>();
 
             if (door != null)
             {
-                // 【修正箇所】ドア単体の開閉を直接呼ぶのをやめ、必ず一元管理マネージャーを介して命令を送るように変更
                 if (doorController != null)
                 {
                     Debug.Log($"【マネージャー経由】{hit.collider.gameObject.name} へのインタラクトを DoorController に委託します。");
                     doorController.Interact(door, playerInventory);
+
+                    // アクションが成功したので、最終インタラクト時間を更新
+                    lastInteractTime = Time.time;
                 }
                 else
                 {
                     Debug.LogError("【実行エラー】DoorControllerの参照がないため、ロック・連動処理を行えません。単体開閉で代用します。");
-                    door.ToggleDoor(); // バックアップ用の単体開閉
+                    door.doorBool = !door.doorBool;
+                    lastInteractTime = Time.time;
                 }
+                return;
             }
-            else
+
+            // --- 2. 鍵（KeyItem）へのインタラクト処理 ---
+            KeyItem key = hit.collider.GetComponentInParent<KeyItem>();
+
+            if (key != null)
             {
-                Debug.LogWarning($"【検知】{hit.collider.gameObject.name} に触れましたが、NewDoorMechスクリプトが見つかりません。");
+                if (playerInventory != null)
+                {
+                    Debug.Log($"【鍵の取得】{hit.collider.gameObject.name} をクリックしたため、インベントリへ追加します。");
+                    key.PickupKey(playerInventory);
+
+                    // アクションが成功したので、最終インタラクト時間を更新
+                    lastInteractTime = Time.time;
+                }
+                else
+                {
+                    Debug.LogError("【実行エラー】PlayerInventoryの参照がないため、鍵を取得できません。");
+                }
+                return;
             }
-        }
-        else
-        {
-            Debug.Log("【操作検知】左クリックされましたが、射程圏内に「Interactable」レイヤーのオブジェクトがありません。");
+
+            // --- 3. 懐中電灯（FlashlightItem）へのインタラクト処理 ---
+            // 光線が当たったオブジェクトに「FlashlightItem」スクリプトがついているか探します
+            FlashlightItem flashlight = hit.collider.GetComponentInParent<FlashlightItem>();
+
+            if (flashlight != null)
+            {
+                Debug.Log($"【懐中電灯の取得】{hit.collider.gameObject.name} をクリックしたため、装備を有効化します。");
+                flashlight.PickupFlashlight();
+
+                // アクションが成功したので、連打防止用の最終インタラクト時間を更新して終了
+                lastInteractTime = Time.time;
+                return;
+            }
         }
     }
 }
