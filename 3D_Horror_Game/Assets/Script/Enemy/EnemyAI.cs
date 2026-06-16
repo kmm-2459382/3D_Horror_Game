@@ -1,6 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
@@ -14,7 +15,8 @@ public class EnemyAI : MonoBehaviour
         Chase,           // プレイヤー追跡（目視できている状態のダッシュ）
         LinearDash,      // 見失った瞬間、プレイヤーが走っていた方向の直線先へ猛突進する状態
         PredictedChase,  // 突進後、敵の現在地から近い足跡をスマートに選別して辿る状態
-        LookAround       // 最終地点まで追いついた後、周辺を警戒捜索
+        LookAround,      // 最終地点まで追いた後、周辺を警戒捜索
+        JumpscareStun    // 【追加】ジャンプスケア演出中の完全停止状態
     }
 
     [Header("--- オーディオ設定 ---")]
@@ -29,8 +31,8 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float runSpeed = 4.5f;         // 追跡・突進時の走行速度
 
     [Header("--- 回転速度設定（度/秒） ---")]
-    [SerializeField] private float normalTurnSpeed = 180f;   // 【通常時】巡回や警戒状態などの通常方向転換速度
-    [SerializeField] private float chaseTurnSpeed = 600f;  // 【追加：追跡時】プレイヤーを追いかけている時の超高速回転速度
+    [SerializeField] private float normalTurnSpeed = 180f;   // 【通常時】通常方向転換速度
+    [SerializeField] private float chaseTurnSpeed = 600f;  // 【追跡時】プレイヤーを追いかけている時の超高速回転速度
 
     [Header("--- アニメーション再生速度調整 ---")]
     [SerializeField] private float walkAnimSpeedMultiplier = 1.0f; // 歩行時のアニメーション速度倍率
@@ -42,7 +44,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float maxIdleTime = 4.0f;      // 立ち止まる最大時間
 
     [Header("--- 見失った直後の直線突進設定 ---")]
-    [SerializeField] private float chasePredictDistance = 6.0f; // 見失った瞬間、進行方向の「何メートル先」までまっすぐ突っ込ませるか
+    [SerializeField] private float chasePredictDistance = 6.0f; // 見失った瞬間、進行方向の何メートル先までまっすぐ突っ込ませるか
     [SerializeField] private float visionLostBufferTime = 1.5f; // 直線突進（LinearDash）を維持する最大秒数
 
     [Header("--- 見失った後の足跡追跡設定 ---")]
@@ -53,7 +55,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float searchAroundRadius = 5f;   // 最終地点の周りを何メートル索敵するか
 
     [Header("--- 扉自動検知・開放設定 ---")]
-    [SerializeField] private float doorCheckRadius = 1.8f;    // 敵が前方の扉を検知する前方方向の前方射程（距離）
+    [SerializeField] private float doorCheckRadius = 1.8f;    // 敵が前方の扉を検知する前方射程
     [SerializeField] private float doorCheckInterval = 0.1f;  // 扉をスキャンする時間間隔
 
     private NavMeshAgent agent;
@@ -84,8 +86,6 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
-
-        // スクリプト側で滑らかなカスタム回転を行うため、Agentの自動回転をオフにする
         agent.updateRotation = false;
 
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -111,7 +111,6 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        // 初期状態でオーディオマネージャーがあれば通常BGM状態から開始
         if (audioManager != null)
         {
             audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
@@ -123,6 +122,13 @@ public class EnemyAI : MonoBehaviour
     private void Update()
     {
         if (playerTransform == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled) return;
+
+        // ジャンプスケア停止状態の時は、足跡追跡ロジックを含めたすべての行動を100%遮断
+        if (currentState == EnemyState.JumpscareStun)
+        {
+            KeepLookingAtPlayer();
+            return;
+        }
 
         CalculatePlayerVectorAndPath();
         CheckAndOpenNearbyDoors();
@@ -153,6 +159,23 @@ public class EnemyAI : MonoBehaviour
 
         ApplyCustomRotation();
         UpdateAnimation();
+    }
+
+    /// <summary>
+    /// 演出中に毎フレーム敵がプレイヤーをじっと見つめ直させる処理
+    /// </summary>
+    private void KeepLookingAtPlayer()
+    {
+        if (playerTransform != null)
+        {
+            Vector3 targetDirection = playerTransform.position - transform.position;
+            targetDirection.y = 0f;
+
+            if (targetDirection.sqrMagnitude > 0.01f)
+            {
+                transform.rotation = Quaternion.LookRotation(targetDirection);
+            }
+        }
     }
 
     private void ApplyCustomRotation()
@@ -202,11 +225,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 【修正点】進行方向（目的地のベクトル）に向かってレイを飛ばし、
-    /// ドアを検知した際はDoorControllerのシステムを介して、連動登録されたすべてのドアを同時に開放します。
-    /// ロックされている場合は停止してすり抜けを防ぎます。
-    /// </summary>
     private void CheckAndOpenNearbyDoors()
     {
         doorCheckTimer += Time.deltaTime;
@@ -214,40 +232,29 @@ public class EnemyAI : MonoBehaviour
         {
             doorCheckTimer = 0f;
 
-            // 敵が現在移動しようとしている理想の移動ベクトルを取得
             Vector3 moveDirection = agent.desiredVelocity.normalized;
-
-            // 静止している時（巡回待機中など）は、現在の敵の正面方向を代入
             if (moveDirection.magnitude < 0.1f)
             {
                 moveDirection = transform.forward;
             }
 
-            // レイの発射位置（敵の腰の高さ付近）
             Vector3 rayStartPos = transform.position + Vector3.up * 0.8f;
-
             RaycastHit hit;
-            // 進行方向に向けて、設定された感知射程分だけ見えない光線(Ray)を飛ばす
             if (Physics.Raycast(rayStartPos, moveDirection, out hit, doorCheckRadius))
             {
-                // レイが衝突したオブジェクト、またはその親が「Door」タグを持っているか確認
                 if (hit.collider.CompareTag("Door") || (hit.transform.parent != null && hit.transform.parent.CompareTag("Door")))
                 {
                     NewDoorMech doorScript = hit.collider.gameObject.GetComponentInParent<NewDoorMech>();
                     if (doorScript != null && !doorScript.doorBool)
                     {
-                        // シーン内のDoorControllerを取得
                         DoorController doorController = FindFirstObjectByType<DoorController>();
                         if (doorController != null)
                         {
-                            // 扉がロックされているか確認
                             if (doorController.IsDoorLocked(doorScript))
                             {
-                                // 【すり抜け防止対策】扉がロックされている場合は強制的に移動を停止させ、すり抜けを防ぐ
                                 agent.isStopped = true;
                                 agent.velocity = Vector3.zero;
 
-                                // 追跡中や突進中であれば、扉で行き止まりになったため強制的に見失い・周囲警戒状態へ落とす
                                 if (currentState == EnemyState.Chase || currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase)
                                 {
                                     TransitionToState(EnemyState.LookAround);
@@ -256,21 +263,13 @@ public class EnemyAI : MonoBehaviour
                                 {
                                     TransitionToState(EnemyState.PatrolIdle);
                                 }
-
-                                Debug.Log("【進路上の扉検知】扉はロックされています。すり抜け防止のため敵の移動を遮断しました。");
                                 return;
                             }
-
-                            // ロックされていない場合は、DoorController経由で開く（インベントリはnullを渡すことで通常開閉処理を走らせる）
-                            // これにより、同じDoorGroupSettingsに登録されている他のドアも連動してすべて開きます
                             doorController.Interact(doorScript, null);
-                            Debug.Log("【進路上の扉検知】目的地への経路上に扉を発見したため、連動グループごと開けました。");
                         }
                         else
                         {
-                            // 万が一シーン内にDoorControllerが無い場合のフォールバック（従来通り単独開放）
                             doorScript.doorBool = true;
-                            Debug.Log("【進路上の扉検知】DoorControllerが見つからないため、単独で扉を開けました。");
                         }
                     }
                 }
@@ -387,8 +386,6 @@ public class EnemyAI : MonoBehaviour
         {
             activeChasePath.Enqueue(playerPositionHistory[i]);
         }
-
-        Debug.Log($"【経路最適化】古い足跡を {closestIndex} 個スキップしました。");
     }
 
     private void HandlePredictedChase(bool canSeePlayer)
@@ -483,9 +480,6 @@ public class EnemyAI : MonoBehaviour
                 agent.isStopped = false;
                 visionLostTimer = 0f;
 
-                // 既にロックされた扉の正面などで停止信号が出ている場合は目的地設定をスキップ
-                if (agent.isStopped) break;
-
                 Vector3 targetDashPos = lastSeenPosition + (playerMoveDirection * chasePredictDistance);
                 NavMeshHit hit;
                 if (NavMesh.SamplePosition(targetDashPos, out hit, chasePredictDistance, NavMesh.AllAreas))
@@ -509,9 +503,13 @@ public class EnemyAI : MonoBehaviour
                 forgetTimer = 0f;
                 agent.SetDestination(lastSeenPosition);
                 break;
+
+            case EnemyState.JumpscareStun:
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+                break;
         }
 
-        // 状態変化をAudioManagerに通達する
         if (audioManager != null)
         {
             if (currentState == EnemyState.Chase)
@@ -542,6 +540,19 @@ public class EnemyAI : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("Player") && currentState != EnemyState.JumpscareStun)
+        {
+            // 💡 プレイヤーの向いている方向（正面ベクトル）を取得
+            Vector3 playerForward = collision.transform.forward;
+            playerForward.y = 0f;
+            playerForward.Normalize();
+
+            // 💡 プレイヤーの正面1.3mの位置を計算（ここが敵の停止位置）
+            Vector3 stopPosition = collision.transform.position + playerForward * 1.3f;
+
+            StartCoroutine(StopEnemyRoutine(2.5f, stopPosition));
+        }
+
         if (collision.gameObject.CompareTag("Door") || (collision.transform.parent != null && collision.transform.parent.CompareTag("Door")))
         {
             NewDoorMech doorScript = collision.gameObject.GetComponentInParent<NewDoorMech>();
@@ -550,16 +561,12 @@ public class EnemyAI : MonoBehaviour
                 DoorController doorController = FindFirstObjectByType<DoorController>();
                 if (doorController != null)
                 {
-                    // 物理衝突時も同様にロック状態を確認
                     if (doorController.IsDoorLocked(doorScript))
                     {
-                        // 衝突時にも速度をゼロにして押し込み・めり込みによるすり抜けを防止
                         agent.isStopped = true;
                         agent.velocity = Vector3.zero;
                         return;
                     }
-
-                    // 衝突時もDoorController経由で連動開放する
                     doorController.Interact(doorScript, null);
                 }
                 else
@@ -570,15 +577,97 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    /// <summary>
+    /// ジャンプスケア演出中に敵の位置を完全にフリーズし、お互いを見つめ合わせる
+    /// </summary>
+    private IEnumerator StopEnemyRoutine(float stopDuration, Vector3 exactStopPosition)
     {
-        // 3D空間上のデバッグ用: 敵の進行方向に沿って検知レイをシミュレートして線を描画
-        Vector3 dir = (agent != null && agent.isOnNavMesh && agent.desiredVelocity.magnitude > 0.1f) ? agent.desiredVelocity.normalized : transform.forward;
-        Vector3 start = transform.position + Vector3.up * 0.8f;
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(start, start + dir * doorCheckRadius);
+        TransitionToState(EnemyState.JumpscareStun);
+        Debug.Log($"【敵AI】プレイヤーと接触。正面に固定して {stopDuration}秒間足を止めます。");
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, searchRadius);
+        // 💡【新対策】お互いのコライダー（衝突判定）を一時的に取得
+        Collider enemyCollider = GetComponent<Collider>();
+        Collider playerCollider = playerTransform != null ? playerTransform.GetComponent<Collider>() : null;
+
+        // 💡演出中だけ、敵とプレイヤーの間の衝突判定を無効化（すり抜け・押し出しバグを100%防止）
+        if (enemyCollider != null && playerCollider != null)
+        {
+            Physics.IgnoreCollision(enemyCollider, playerCollider, true);
+        }
+
+        // 敵ナビゲーションの強制ワープと即時完全停止
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+            agent.Warp(exactStopPosition); // プレイヤーの正面位置へ強制ワープ
+        }
+
+        if (animator != null)
+        {
+            animator.SetFloat(speedHash, 0f);
+            animator.SetBool(isChasingHash, false);
+            animator.speed = walkAnimSpeedMultiplier;
+        }
+
+        if (audioManager != null)
+        {
+            audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+        }
+
+        // プレイヤーのカメラ（視線）を敵の顔の正面へ向け直す
+        if (playerTransform != null)
+        {
+            Vector3 dirToPlayer = (transform.position - playerTransform.position).normalized;
+            dirToPlayer.y = 0f;
+            if (dirToPlayer.sqrMagnitude > 0.01f)
+            {
+                playerTransform.rotation = Quaternion.LookRotation(dirToPlayer);
+            }
+
+            // StarterAssetsの視点移動・移動入力を演出中だけ強制的にゼロにする
+            var inputs = playerTransform.GetComponent<StarterAssets.StarterAssetsInputs>();
+            if (inputs != null)
+            {
+                inputs.move = Vector2.zero;
+                inputs.look = Vector2.zero;
+            }
+        }
+
+        // 演出時間（2.5秒間）、敵の位置を毎フレームガチガチに固定
+        float elapsed = 0f;
+        while (elapsed < stopDuration)
+        {
+            transform.position = exactStopPosition; // 毎フレーム位置を上書き固定
+            KeepLookingAtPlayer();                  // 敵はプレイヤーをじっと見つめる
+
+            // 💡プレイヤー側の入力も毎フレームクリアして動けないようにロックする
+            if (playerTransform != null)
+            {
+                var inputs = playerTransform.GetComponent<StarterAssets.StarterAssetsInputs>();
+                if (inputs != null)
+                {
+                    inputs.move = Vector2.zero;
+                    inputs.look = Vector2.zero;
+                }
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 💡【演出終了】衝突判定（コライダー）を元に戻して、再び当たるようにする
+        if (enemyCollider != null && playerCollider != null)
+        {
+            Physics.IgnoreCollision(enemyCollider, playerCollider, false);
+        }
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+        }
+
+        Debug.Log("【敵AI】停止時間終了。追跡を再開します。");
+        TransitionToState(EnemyState.Chase);
     }
 }

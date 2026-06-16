@@ -1,49 +1,49 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    // --- Å[•”‚ÌƒŠƒXƒg\‘¢i˜A“®‚·‚éƒhƒAƒOƒ‹[ƒv‚Ìİ’èj ---
+    // --- æœ€æ·±éƒ¨ã®ãƒªã‚¹ãƒˆæ§‹é€ ï¼ˆé€£å‹•ã™ã‚‹ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—ã®è¨­å®šï¼‰ ---
     [System.Serializable]
     public class DoorGroupSettings
     {
-        [Tooltip("Unity‚ÌƒCƒ“ƒXƒyƒNƒ^[ã‚ÅŒ©‚â‚·‚­‚·‚é‚½‚ß‚ÌƒOƒ‹[ƒv–¼i—á: ³–ÊŒºŠÖ—¼ŠJ‚«AŒÂºA‚È‚Çj")]
-        public string groupName = "V‚µ‚¢ƒhƒAƒOƒ‹[ƒv";
+        [Tooltip("Unityã®ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ä¸Šã§è¦‹ã‚„ã™ãã™ã‚‹ãŸã‚ã®ã‚°ãƒ«ãƒ¼ãƒ—åï¼ˆä¾‹: æ­£é¢ç„é–¢ä¸¡é–‹ãã€å€‹å®¤Aãªã©ï¼‰")]
+        public string groupName = "æ–°ã—ã„ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—";
 
-        [Tooltip("˜A“®‚³‚¹‚½‚¢ƒhƒAiNewDoorMechj‚ÌƒŠƒXƒgB2‚ÂˆÈã“o˜^‚·‚é‚ÆŠJ•Â‚ª“¯Šú‚µ‚Ü‚·")]
+        [Tooltip("é€£å‹•ã•ã›ãŸã„ãƒ‰ã‚¢ï¼ˆNewDoorMechï¼‰ã®ãƒªã‚¹ãƒˆã€‚2ã¤ä»¥ä¸Šç™»éŒ²ã™ã‚‹ã¨é–‹é–‰ãŒåŒæœŸã—ã¾ã™")]
         public List<NewDoorMech> targetDoors = new List<NewDoorMech>();
 
-        [Tooltip("ƒQ[ƒ€ŠJn‚É‚±‚ÌƒhƒAƒOƒ‹[ƒv‘S‘Ì‚ÉŒ®‚ğ‚©‚¯‚Ä‚¨‚­‚©‚Ç‚¤‚©")]
+        [Tooltip("ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã«ã“ã®ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—å…¨ä½“ã«éµã‚’ã‹ã‘ã¦ãŠãã‹ã©ã†ã‹")]
         public bool isLocked = false;
 
-        [Tooltip("‚±‚ÌƒhƒAƒOƒ‹[ƒv‚ÌƒƒbƒN‚ğ‰ğœ‚·‚é‚½‚ß‚É•K—v‚ÈŒÅ—L‚ÌŒ®IDi•¶š—ñj")]
+        [Tooltip("ã“ã®ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—ã®ãƒ­ãƒƒã‚¯ã‚’è§£é™¤ã™ã‚‹ãŸã‚ã«å¿…è¦ãªå›ºæœ‰ã®éµIDï¼ˆæ–‡å­—åˆ—ï¼‰")]
         public string doorId = "Room_A_Key";
     }
 
-    // --- ’†ŠÔ‚ÌƒŠƒXƒg\‘¢i•”‰®‚²‚Æ‚ÌƒOƒ‹[ƒv‰»j ---
+    // --- ä¸­é–“ã®ãƒªã‚¹ãƒˆæ§‹é€ ï¼ˆéƒ¨å±‹ã”ã¨ã®ã‚°ãƒ«ãƒ¼ãƒ—åŒ–ï¼‰ ---
     [System.Serializable]
     public class RoomData
     {
-        [Tooltip("Unity‚ÌƒCƒ“ƒXƒyƒNƒ^[ã‚ÅŒ©‚â‚·‚­‚·‚é‚½‚ß‚Ì•”‰®‚Ì–¼‘Oi—á: 1Fó•tA”üpº‚È‚Çj")]
-        public string roomName = "V‚µ‚¢•”‰®";
+        [Tooltip("Unityã®ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ä¸Šã§è¦‹ã‚„ã™ãã™ã‚‹ãŸã‚ã®éƒ¨å±‹ã®åå‰ï¼ˆä¾‹: 1Få—ä»˜ã€ç¾è¡“å®¤ãªã©ï¼‰")]
+        public string roomName = "æ–°ã—ã„éƒ¨å±‹";
 
-        [Tooltip("‚±‚Ì•”‰®‚Ì’†‚É”z’u‚³‚ê‚Ä‚¢‚éƒhƒAƒOƒ‹[ƒv‚ÌƒŠƒXƒg")]
+        [Tooltip("ã“ã®éƒ¨å±‹ã®ä¸­ã«é…ç½®ã•ã‚Œã¦ã„ã‚‹ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ—ã®ãƒªã‚¹ãƒˆ")]
         public List<DoorGroupSettings> doorGroups = new List<DoorGroupSettings>();
     }
 
-    [Header("--- ŠO•”ƒVƒXƒeƒ€QÆ ---")]
-    [Tooltip("‘S‘Ì‚Ì‰¹ŠÖŒW‚ğŠÇ—‚µ‚Ä‚¢‚éAudioManagerƒIƒuƒWƒFƒNƒg‚ğŠ„‚è“–‚Ä‚Ü‚·")]
+    [Header("--- å¤–éƒ¨ã‚·ã‚¹ãƒ†ãƒ å‚ç…§ ---")]
+    [Tooltip("å…¨ä½“ã®éŸ³é–¢ä¿‚ã‚’ç®¡ç†ã—ã¦ã„ã‚‹AudioManagerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰²ã‚Šå½“ã¦ã¾ã™")]
     [SerializeField] private AudioManager audioManager;
 
-    [Header("--- •”‰®•ÊE”à˜A“®ŠÇ—ƒŠƒXƒgi‘½d\‘¢j ---")]
-    [Tooltip("•”‰®‚²‚Æ‚ÉƒOƒ‹[ƒv‰»‚µ‚ÄA‚·‚×‚Ä‚ÌƒhƒA˜A“®ƒOƒ‹[ƒv‚ğ“o˜^EŠÇ—‚µ‚Ü‚·")]
+    [Header("--- éƒ¨å±‹åˆ¥ãƒ»æ‰‰é€£å‹•ç®¡ç†ãƒªã‚¹ãƒˆï¼ˆå¤šé‡æ§‹é€ ï¼‰ ---")]
+    [Tooltip("éƒ¨å±‹ã”ã¨ã«ã‚°ãƒ«ãƒ¼ãƒ—åŒ–ã—ã¦ã€ã™ã¹ã¦ã®ãƒ‰ã‚¢é€£å‹•ã‚°ãƒ«ãƒ¼ãƒ—ã‚’ç™»éŒ²ãƒ»ç®¡ç†ã—ã¾ã™")]
     [SerializeField] private List<RoomData> roomDoorsList = new List<RoomData>();
 
-    [Header("--- Œ®‘€ì—pƒI[ƒfƒBƒIİ’è (3D) ---")]
-    [Tooltip("Œ®‚ª‚©‚©‚Á‚Ä‚¢‚ÄƒhƒA‚ªŠJ‚©‚È‚¢‚ÌƒKƒ`ƒƒƒKƒ`ƒƒ‰¹")]
+    [Header("--- éµæ“ä½œç”¨ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªè¨­å®š (3D) ---")]
+    [Tooltip("éµãŒã‹ã‹ã£ã¦ã„ã¦ãƒ‰ã‚¢ãŒé–‹ã‹ãªã„æ™‚ã®ã‚¬ãƒãƒ£ã‚¬ãƒãƒ£éŸ³")]
     [SerializeField] private AudioClip lockedSE;
 
-    [Tooltip("Œ®‚ª³í‚ÉŠJ‚¢‚½‚ÌƒJƒ`ƒƒƒb‚Æ‚¢‚¤‰¹")]
+    [Tooltip("éµãŒæ­£å¸¸ã«é–‹ã„ãŸæ™‚ã®ã‚«ãƒãƒ£ãƒƒã¨ã„ã†éŸ³")]
     [SerializeField] private AudioClip unlockSE;
 
     [SerializeField][Range(0f, 1f)] private float soundVolume = 0.8f;
@@ -52,24 +52,24 @@ public class DoorController : MonoBehaviour
 
     void Start()
     {
-        // Œ®‰¹‚ğ‘€ìƒhƒA‚ÌêŠ‚©‚ç–Â‚ç‚·‚½‚ß‚ÌAudioSource‰Šú‰»
+        // éµéŸ³ã‚’æ“ä½œãƒ‰ã‚¢ã®å ´æ‰€ã‹ã‚‰é³´ã‚‰ã™ãŸã‚ã®AudioSourceåˆæœŸåŒ–
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        audioSource.spatialBlend = 1.0f; // 3DƒTƒEƒ“ƒh‰»
+        audioSource.spatialBlend = 1.0f; // 3Dã‚µã‚¦ãƒ³ãƒ‰åŒ–
         audioSource.playOnAwake = false;
 
-        // ‰Šúİ’è‚ÌƒGƒ‰[Šm”FiOdƒŠƒXƒg‚Ì’†g‚ğƒfƒB[ƒvƒXƒLƒƒƒ“j
+        // åˆæœŸè¨­å®šã®ã‚¨ãƒ©ãƒ¼ç¢ºèªï¼ˆä¸‰é‡ãƒªã‚¹ãƒˆã®ä¸­èº«ã‚’ãƒ‡ã‚£ãƒ¼ãƒ—ã‚¹ã‚­ãƒ£ãƒ³ï¼‰
         foreach (var room in roomDoorsList)
         {
             foreach (var group in room.doorGroups)
             {
                 if (group.targetDoors.Count == 0)
                 {
-                    Debug.LogWarning($"yİ’èƒ~ƒX’ˆÓz•”‰® [{room.roomName}] ‚ÌƒOƒ‹[ƒv [{group.groupName}] ‚ÉƒhƒAiTarget Doorsj‚ª1‚Â‚à“o˜^‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+                    Debug.LogWarning($"ã€è¨­å®šãƒŸã‚¹æ³¨æ„ã€‘éƒ¨å±‹ [{room.roomName}] ã®ã‚°ãƒ«ãƒ¼ãƒ— [{group.groupName}] ã«ãƒ‰ã‚¢ï¼ˆTarget Doorsï¼‰ãŒ1ã¤ã‚‚ç™»éŒ²ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
                 }
                 else
                 {
@@ -77,7 +77,7 @@ public class DoorController : MonoBehaviour
                     {
                         if (group.targetDoors[i] == null)
                         {
-                            Debug.LogWarning($"yİ’èƒ~ƒX’ˆÓz•”‰® [{room.roomName}] ‚ÌƒOƒ‹[ƒv [{group.groupName}] ‚Ì—v‘f {i} ‚É‹ó‚ÌQÆiMissingj‚ª‚ ‚è‚Ü‚·B");
+                            Debug.LogWarning($"ã€è¨­å®šãƒŸã‚¹æ³¨æ„ã€‘éƒ¨å±‹ [{room.roomName}] ã®ã‚°ãƒ«ãƒ¼ãƒ— [{group.groupName}] ã®è¦ç´  {i} ã«ç©ºã®å‚ç…§ï¼ˆMissingï¼‰ãŒã‚ã‚Šã¾ã™ã€‚");
                         }
                     }
                 }
@@ -86,56 +86,71 @@ public class DoorController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚âŠÂ‹«‚ªƒhƒA‚ğ‘€ì‚µ‚æ‚¤‚Æ‚µ‚½‚ÉŒÄ‚Ño‚·ƒƒCƒ“ƒVƒXƒeƒ€i˜A“®‘Î‰”Åj
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚„ç’°å¢ƒãŒãƒ‰ã‚¢ã‚’æ“ä½œã—ã‚ˆã†ã¨ã—ãŸæ™‚ã«å‘¼ã³å‡ºã™ãƒ¡ã‚¤ãƒ³ã‚·ã‚¹ãƒ†ãƒ ï¼ˆé€£å‹•å¯¾å¿œç‰ˆï¼‰
     /// </summary>
-    /// <param name="interactedDoor">ÀÛ‚ÉƒvƒŒƒCƒ„[‚ªG‚ê‚½A‚Ü‚½‚Í“G‚ªŒŸ’m‚µ‚½ƒhƒA’P‘Ì‚ÌNewDoorMech</param>
-    /// <param name="playerInventory">ƒvƒŒƒCƒ„[‚ÌŠŒ®ƒCƒ“ƒxƒ“ƒgƒŠ</param>
+    /// <param name="interactedDoor">å®Ÿéš›ã«ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒè§¦ã‚ŒãŸã€ã¾ãŸã¯æ•µãŒæ¤œçŸ¥ã—ãŸãƒ‰ã‚¢å˜ä½“ã®NewDoorMech</param>
+    /// <param name="playerInventory">ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ‰€æŒéµã‚¤ãƒ³ãƒ™ãƒ³ãƒˆãƒª</param>
     public void Interact(NewDoorMech interactedDoor, PlayerInventory playerInventory)
     {
         if (interactedDoor == null) return;
 
-        // G‚ç‚ê‚½ƒhƒA‚ªŠ‘®‚µ‚Ä‚¢‚éu˜A“®ƒOƒ‹[ƒvv‚ğ‘SƒŠƒXƒg‚©‚çŒŸõ
+        // è§¦ã‚‰ã‚ŒãŸãƒ‰ã‚¢ãŒæ‰€å±ã—ã¦ã„ã‚‹ã€Œé€£å‹•ã‚°ãƒ«ãƒ¼ãƒ—ã€ã‚’å…¨ãƒªã‚¹ãƒˆã‹ã‚‰æ¤œç´¢
         DoorGroupSettings currentGroup = FindDoorGroup(interactedDoor);
 
-        // –œ‚ªˆêAƒŠƒXƒg‚É“o˜^‚³‚ê‚Ä‚¢‚È‚¢ƒhƒA‚¾‚Á‚½ê‡‚ÌˆÀ‘Sôi’P‘Ì‚Å’ÊíŠJ•Â‚³‚¹‚éj
+        // ä¸‡ãŒä¸€ã€ãƒªã‚¹ãƒˆã«ç™»éŒ²ã•ã‚Œã¦ã„ãªã„ãƒ‰ã‚¢ã ã£ãŸå ´åˆã®å®‰å…¨ç­–ï¼ˆå˜ä½“ã§é€šå¸¸é–‹é–‰ã•ã›ã‚‹ï¼‰
         if (currentGroup == null)
         {
             interactedDoor.doorBool = !interactedDoor.doorBool;
             return;
         }
 
-        // ‰¹Œ¹ˆÊ’u‚ğG‚ç‚ê‚½ƒhƒA‚ÌÀ•W‚Ö’Ç]
+        // éŸ³æºä½ç½®ã‚’è§¦ã‚‰ã‚ŒãŸãƒ‰ã‚¢ã®åº§æ¨™ã¸è¿½å¾“
         transform.position = interactedDoor.transform.position;
 
-        // 1. Œ®‚ª‚©‚©‚Á‚Ä‚¢‚éê‡‚Ìˆ—
+        // 1. éµãŒã‹ã‹ã£ã¦ã„ã‚‹å ´åˆã®å‡¦ç†
         if (currentGroup.isLocked)
         {
+            // ã‚¤ãƒ³ãƒ™ãƒ³ãƒˆãƒªã‹ã‚‰å¯¾å¿œã™ã‚‹éµã‚’æŒã£ã¦ã„ã‚‹ã‹ç¢ºèª
             if (playerInventory != null && playerInventory.HasKey(currentGroup.doorId))
             {
                 currentGroup.isLocked = false;
                 PlaySound(unlockSE);
-                Debug.Log($"y‰ğù¬Œ÷zƒhƒAƒOƒ‹[ƒv [{currentGroup.groupName}] ‚ğƒAƒ“ƒƒbƒN‚µ‚Ü‚µ‚½: {currentGroup.doorId}");
+                Debug.Log($"ã€è§£éŒ æˆåŠŸã€‘ãƒ‰ã‚¢ã‚°ãƒ«ãƒ¼ãƒ— [{currentGroup.groupName}] ã‚’ã‚¢ãƒ³ãƒ­ãƒƒã‚¯ã—ã¾ã—ãŸ: {currentGroup.doorId}");
 
-                // ‰ğù‚Æ“¯‚ÉƒOƒ‹[ƒv“à‚Ì‚·‚×‚Ä‚ÌƒhƒA‚ğƒI[ƒvƒ“
+                // ğŸ’¡ã€GameMessageUIå¯¾å¿œã€‘
+                // è§£éŒ ã«æˆåŠŸã—ãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ã€GameMessageUIå†…ã®ãƒ†ã‚­ã‚¹ãƒˆã¸ç·‘è‰²ã§é€ã‚Šè¾¼ã¿ã¾ã™
+                if (GameMessageUI.Instance != null)
+                {
+                    GameMessageUI.Instance.ShowMessage("éµã‚’é–‹ã‘ãŸï¼", Color.green);
+                }
+
+                // è§£éŒ ã¨åŒæ™‚ã«ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®ã™ã¹ã¦ã®ãƒ‰ã‚¢ã‚’ã‚ªãƒ¼ãƒ—ãƒ³
                 SetGroupDoorsState(currentGroup, true);
             }
             else
             {
                 PlaySound(lockedSE);
-                Debug.Log($"y‰ğù¸”szŒ®‚ªŠ|‚©‚Á‚Ä‚¢‚Ü‚·B•K—vID: {currentGroup.doorId}");
+                Debug.Log($"ã€è§£éŒ å¤±æ•—ã€‘éµãŒæ›ã‹ã£ã¦ã„ã¾ã™ã€‚å¿…è¦ID: {currentGroup.doorId}");
+
+                // ğŸ’¡ã€GameMessageUIå¯¾å¿œã€‘
+                // éµãŒãªãã¦é–‹ã‹ãªã„è­¦å‘Šãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ã€GameMessageUIå†…ã®ãƒ†ã‚­ã‚¹ãƒˆã¸èµ¤è‰²ã§é€ã‚Šè¾¼ã¿ã¾ã™
+                if (GameMessageUI.Instance != null)
+                {
+                    GameMessageUI.Instance.ShowMessage("éµãŒã‹ã‹ã£ã¦ã„ã‚‹ã€‚å¯¾å¿œã™ã‚‹éµãŒå¿…è¦ã ã€‚", Color.red);
+                }
             }
         }
-        // 2. Œ®‚ª‚©‚©‚Á‚Ä‚¢‚È‚¢i’ÊíŠJ•Âjê‡
+        // 2. éµãŒã‹ã‹ã£ã¦ã„ãªã„ï¼ˆé€šå¸¸é–‹é–‰ï¼‰å ´åˆ
         else
         {
-            // G‚ç‚ê‚½ƒhƒA‚ÌuŸ‚Ìó‘Ôi”½“]jv‚ğŠî€‚É‚µ‚ÄAƒOƒ‹[ƒv‘Sˆõ‚Ìƒ^[ƒQƒbƒgó‘Ô‚ğŒˆ‚ß‚é
+            // è§¦ã‚‰ã‚ŒãŸãƒ‰ã‚¢ã®ã€Œæ¬¡ã®çŠ¶æ…‹ï¼ˆåè»¢ï¼‰ã€ã‚’åŸºæº–ã«ã—ã¦ã€ã‚°ãƒ«ãƒ¼ãƒ—å…¨å“¡ã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆçŠ¶æ…‹ã‚’æ±ºã‚ã‚‹
             bool nextState = !interactedDoor.doorBool;
             SetGroupDoorsState(currentGroup, nextState);
         }
     }
 
     /// <summary>
-    /// ŠO•”i“GAI‚È‚Çj‚©‚çƒhƒA‚ªƒƒbƒN’†‚©q‚Ë‚ç‚ê‚½Û‚ÌŠm”F—pŠÖ”
+    /// å¤–éƒ¨ï¼ˆæ•µAIãªã©ï¼‰ã‹ã‚‰ãƒ‰ã‚¢ãŒãƒ­ãƒƒã‚¯ä¸­ã‹å°‹ã­ã‚‰ã‚ŒãŸéš›ã®ç¢ºèªç”¨é–¢æ•°
     /// </summary>
     public bool IsDoorLocked(NewDoorMech targetDoor)
     {
@@ -148,7 +163,7 @@ public class DoorController : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘½dƒŠƒXƒg‚Ì’†‚©‚çA“Á’è‚ÌNewDoorMech‚ªŠÜ‚Ü‚ê‚Ä‚¢‚éDoorGroupSettings‚ğ’T‚µo‚·ƒwƒ‹ƒp[ŠÖ”
+    /// å¤šé‡ãƒªã‚¹ãƒˆã®ä¸­ã‹ã‚‰ã€ç‰¹å®šã®NewDoorMechãŒå«ã¾ã‚Œã¦ã„ã‚‹DoorGroupSettingsã‚’æ¢ã—å‡ºã™ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°
     /// </summary>
     private DoorGroupSettings FindDoorGroup(NewDoorMech targetDoor)
     {
@@ -156,10 +171,10 @@ public class DoorController : MonoBehaviour
         {
             foreach (var group in room.doorGroups)
             {
-                // ƒOƒ‹[ƒv“à‚ÌƒŠƒXƒg‚É‘ÎÛ‚ÌƒhƒA‚ªŠÜ‚Ü‚ê‚Ä‚¢‚é‚©ƒ`ƒFƒbƒN
+                // ã‚°ãƒ«ãƒ¼ãƒ—å†…ã®ãƒªã‚¹ãƒˆã«å¯¾è±¡ã®ãƒ‰ã‚¢ãŒå«ã¾ã‚Œã¦ã„ã‚‹ã‹ãƒã‚§ãƒƒã‚¯
                 if (group.targetDoors.Contains(targetDoor))
                 {
-                    return group; // Œ©‚Â‚©‚Á‚½ƒOƒ‹[ƒv‚ğ•Ô‚·
+                    return group; // è¦‹ã¤ã‹ã£ãŸã‚°ãƒ«ãƒ¼ãƒ—ã‚’è¿”ã™
                 }
             }
         }
@@ -167,7 +182,7 @@ public class DoorController : MonoBehaviour
     }
 
     /// <summary>
-    /// w’è‚³‚ê‚½ƒOƒ‹[ƒv‚É‘®‚·‚é‚·‚×‚Ä‚ÌƒhƒA‚Ìó‘Ô‚ğˆêŠ‡‚Å•ÏX‚·‚éŠÖ”
+    /// æŒ‡å®šã•ã‚ŒãŸã‚°ãƒ«ãƒ¼ãƒ—ã«å±ã™ã‚‹ã™ã¹ã¦ã®ãƒ‰ã‚¢ã®çŠ¶æ…‹ã‚’ä¸€æ‹¬ã§å¤‰æ›´ã™ã‚‹é–¢æ•°
     /// </summary>
     private void SetGroupDoorsState(DoorGroupSettings group, bool state)
     {

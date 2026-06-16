@@ -1,45 +1,70 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [Header("--- Š‚µ‚Ä‚¢‚éŒ®‚ÌIDƒŠƒXƒg ---")]
-    [Tooltip("ƒQ[ƒ€’†‚ÉƒvƒŒƒCƒ„[‚ªE‚Á‚½Œ®‚ÌIDi•¶š—ñj‚ª‚±‚±‚É’~Ï‚³‚ê‚Ü‚·")]
+    [Header("--- æ‰€æŒã—ã¦ã„ã‚‹éµã®IDãƒªã‚¹ãƒˆ ---")]
+    [Tooltip("ã‚²ãƒ¼ãƒ ä¸­ã«ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ‹¾ã£ãŸéµã®IDï¼ˆæ–‡å­—åˆ—ï¼‰ãŒã“ã“ã«è“„ç©ã•ã‚Œã¾ã™")]
     [SerializeField] private List<string> possessedKeyIds = new List<string>();
 
+    [Header("--- ãã®ä»–ã®æ‰€æŒã‚¢ã‚¤ãƒ†ãƒ çŠ¶æ…‹ ---")]
+    [Tooltip("æ‡ä¸­é›»ç¯ã‚’æ‰€æŒã—ã¦ã„ã‚‹ã‹ã©ã†ã‹")]
+    [SerializeField] private bool hasFlashlight = false;
+
     /// <summary>
-    /// V‚µ‚­Œ®‚ğE‚¢ã‚°‚½‚ÉŒÄ‚Ño‚·ŠÖ”
+    /// æ–°ã—ãéµã‚’æ‹¾ã„ä¸Šã’ãŸæ™‚ã«å‘¼ã³å‡ºã™é–¢æ•°
     /// </summary>
-    /// <param name="keyId">“üè‚µ‚½Œ®‚ÌŒÅ—LID</param>
+    /// <param name="keyId">å…¥æ‰‹ã—ãŸéµã®å›ºæœ‰ID</param>
     public void AddKey(string keyId)
     {
         if (!possessedKeyIds.Contains(keyId))
         {
             possessedKeyIds.Add(keyId);
-            Debug.Log($"ƒCƒ“ƒxƒ“ƒgƒŠ‚ÉŒ®‚ğ’Ç‰Á: {keyId}");
+            Debug.Log($"ã‚¤ãƒ³ãƒ™ãƒ³ãƒˆãƒªã«éµã‚’è¿½åŠ : {keyId}");
         }
     }
 
     /// <summary>
-    /// “Á’è‚ÌŒ®‚ğ‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğƒ`ƒFƒbƒN‚·‚éŠÖ”
+    /// ç‰¹å®šã®éµã‚’æŒã£ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹é–¢æ•°
     /// </summary>
-    /// <param name="keyId">’²‚×‚½‚¢Œ®‚ÌŒÅ—LID</param>
-    /// <returns>‚Á‚Ä‚¢‚ê‚Îtrue</returns>
+    /// <param name="keyId">èª¿ã¹ãŸã„éµã®å›ºæœ‰ID</param>
+    /// <returns>æŒã£ã¦ã„ã‚Œã°true</returns>
     public bool HasKey(string keyId)
     {
         return possessedKeyIds.Contains(keyId);
     }
 
     /// <summary>
-    /// g—p‚µ‚½Œ®‚ğÁ”ï‚µ‚ÄèŒ³‚©‚ç‚È‚­‚µ‚½‚¢ê‡‚ÉŒÄ‚Ño‚·ŠÖ”
+    /// ä½¿ç”¨ã—ãŸéµã‚’æ¶ˆè²»ã—ã¦æ‰‹å…ƒã‹ã‚‰ãªãã—ãŸã„å ´åˆã«å‘¼ã³å‡ºã™é–¢æ•°
     /// </summary>
-    /// <param name="keyId">íœ‚·‚éŒ®‚ÌŒÅ—LID</param>
+    /// <param name="keyId">å‰Šé™¤ã™ã‚‹éµã®å›ºæœ‰ID</param>
     public void RemoveKey(string keyId)
     {
         if (possessedKeyIds.Contains(keyId))
         {
             possessedKeyIds.Remove(keyId);
-            Debug.Log($"ƒCƒ“ƒxƒ“ƒgƒŠ‚©‚çŒ®‚ğíœ: {keyId}");
+            Debug.Log($"ã‚¤ãƒ³ãƒ™ãƒ³ãƒˆãƒªã‹ã‚‰éµã‚’å‰Šé™¤: {keyId}");
         }
+    }
+
+    // =================================================================
+    // ğŸ’¡ æ‡ä¸­é›»ç¯ç”¨ã®æ‹¡å¼µæ©Ÿèƒ½
+    // =================================================================
+
+    /// <summary>
+    /// æ‡ä¸­é›»ç¯ã®æ‰€æŒçŠ¶æ…‹ã‚’è¨­å®šã™ã‚‹é–¢æ•°
+    /// </summary>
+    public void SetFlashlightPossession(bool state)
+    {
+        hasFlashlight = state;
+        Debug.Log($"ã‚¤ãƒ³ãƒ™ãƒ³ãƒˆãƒªã®æ‡ä¸­é›»ç¯æ‰€æŒçŠ¶æ…‹ã‚’æ›´æ–°: {state}");
+    }
+
+    /// <summary>
+    /// æ‡ä¸­é›»ç¯ã‚’æŒã£ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹é–¢æ•°
+    /// </summary>
+    public bool HasFlashlight()
+    {
+        return hasFlashlight;
     }
 }

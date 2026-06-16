@@ -251,7 +251,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: aae4d65e21c34b146bfdfed4c579ad10, type: 2}
-  - {fileID: 2100000, guid: acd2fc7725d240b478a3df9ff26c90cd, type: 2}
+  - {fileID: 2100000, guid: 3aac5a648c93c6e49bb654cc1b31ab41, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -325,7 +325,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemBlinker
   blinkSpeed: 2
-  outlineMaterialIndex: 1
+  targetAllMaterials: 1
+  targetMaterialIndices: 00000000
   thicknessPropertyName: _Outline
   minThickness: 0
   maxThickness: 0.02

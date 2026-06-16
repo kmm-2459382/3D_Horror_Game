@@ -76,6 +76,17 @@ public class KeyItem : MonoBehaviour
         playerInventory.AddKey(keyId);
         Debug.Log($"【鍵取得成功】アイテム「{gameObject.name}」を取得しました。インベントリ登録ID: {keyId}");
 
+        // 💡【GameMessageUI対応】
+        // GameMessageUIに指定・登録してあるテキストコンポーネントへ、拾った鍵のメッセージを黄色い文字で表示します
+        if (GameMessageUI.Instance != null)
+        {
+            GameMessageUI.Instance.ShowMessage($"「{keyId}」を手に入れた！", Color.yellow);
+        }
+        else
+        {
+            Debug.LogWarning("【GameMessageUIが見つかりません】MessageManagerオブジェクトがシーン内に存在するか確認してください。");
+        }
+
         // 鍵を拾った効果音が設定されていれば、3D空間上のその場で再生（Destroyされても音が消えない方法）
         if (pickupSE != null)
         {
