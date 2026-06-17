@@ -6046,6 +6046,37 @@ LODGroup:
     - renderer: {fileID: 1657924431}
     - renderer: {fileID: 1770755723}
   m_Enabled: 1
+--- !u!1 &82924560
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 82924561}
+  m_Layer: 0
+  m_Name: RespawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &82924561
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 82924560}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &84144815
 GameObject:
   m_ObjectHideFlags: 0
@@ -26653,6 +26684,61 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 462105851}
   m_Mesh: {fileID: 2795315529474567381, guid: bf4bafcdbe900844192625019487b5ef, type: 3}
+--- !u!1 &462911991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 462911993}
+  - component: {fileID: 462911992}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &462911992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462911991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d435e179e9d00724696d2ba552a5353e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  currentPhase: 0
+  hasFlashlight: 0
+  hasRooftopKey: 0
+  audioManager: {fileID: 55204385}
+  flashlightController: {fileID: 2083252332}
+  playerObject: {fileID: 8616685848286051011}
+  requiredItemCount: 5
+  wakeUpPoint: {fileID: 82924561}
+  stareDuration: 3
+  backDuration: 2
+  backSpeed: 1.5
+--- !u!4 &462911993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462911991}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &465065618
 GameObject:
   m_ObjectHideFlags: 0
@@ -115080,6 +115166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlashlightController
   startsOn: 1
   targetLight: {fileID: 1512317037}
+  flashlightObject: {fileID: 1736887755}
   toggleSound: {fileID: 8300000, guid: c81f79aad79293340858a4ebd7ea0ca1, type: 3}
 --- !u!136 &2083252333
 CapsuleCollider:
@@ -117540,7 +117627,8 @@ MonoBehaviour:
   playerCameraObject: {fileID: 1773265686}
   lookAtTarget: {fileID: 997431102}
   jumpscareAnimationTrigger: Jumpscare
-  scareSE: {fileID: 0}
+  scareAudioSource: {fileID: 1712696219}
+  scareSE: {fileID: 8300000, guid: c74ff2a28f1b8cf4481bbf8fa8fa12e1, type: 3}
   seVolume: 1
   scareImageUI: {fileID: 0}
   turnDuration: 0.2
@@ -211609,11 +211697,10 @@ SceneRoots:
   - {fileID: 64389878}
   - {fileID: 582117323}
   - {fileID: 816377922}
-  - {fileID: 8997996946438873209}
-  - {fileID: 884220133}
   - {fileID: 1875161217764922481}
+  - {fileID: 884220133}
+  - {fileID: 8997996946438873209}
   - {fileID: 6064258}
-  - {fileID: 55204384}
   - {fileID: 501341062}
   - {fileID: 8752233476416004184}
   - {fileID: 740473753}
@@ -211622,3 +211709,6 @@ SceneRoots:
   - {fileID: 6349058342820080199}
   - {fileID: 54854945}
   - {fileID: 913700506}
+  - {fileID: 55204384}
+  - {fileID: 462911993}
+  - {fileID: 82924561}

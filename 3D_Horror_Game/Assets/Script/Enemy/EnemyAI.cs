@@ -121,6 +121,38 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        // 💡 GameManagerが存在する場合のイベント条件分岐
+        if (GameManager.Instance != null)
+        {
+            GameManager.GamePhase phase = GameManager.Instance.CurrentPhase;
+
+            // ─── 【屋上演出フェーズ（Phase4）の挙動】 ───
+            if (phase == GameManager.GamePhase.Phase4_RooftopEvent)
+            {
+                // 最初は見つめ合ったり後ずさりしているので、BGMがAlertChase（チェイス開始）になるまで動かない
+                if (audioManager.CurrentMode != AudioManager.BGMMode.AlertChase)
+                {
+                    agent.isStopped = true;
+                    agent.velocity = Vector3.zero;
+                    // 必要ならここで「見つめ合う不気味な待機アニメーション」を再生
+                    return;
+                }
+
+                // 💡 後ずさり演出が終わり、チェイスが始まったら：
+                // 視界判定や壁を一切無視して、プレイヤーに向かって超高速で最短突進（必ず捕まえる）
+                agent.enabled = true;
+                agent.isStopped = false;
+                agent.speed = 7.5f; // プレイヤーより確実に速い速度
+                agent.SetDestination(playerTransform.position);
+
+                return; // 通常の徘徊や視界チェックのAI処理はすべてスキップ
+            }
+
+            // ─── 【目を覚ました後（Phase5）の挙動】 ───
+            // Phase5_Collection になると、ここのif文を通り抜けるため、
+            // これより下に書かれている「従来のパトロール・索敵・通常の追いかけAI」の処理が自動的に動くようになります。
+        }
+
         if (playerTransform == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled) return;
 
         // 💡【完全フリーズ処理】

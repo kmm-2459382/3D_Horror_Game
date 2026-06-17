@@ -18,9 +18,14 @@ public class JumpscareTrigger : MonoBehaviour
     [SerializeField] private string jumpscareAnimationTrigger = "Jumpscare";
 
     [Header("--- 演出・エフェクト設定 ---")]
+    [Tooltip("💡 ジャンプスケア音を再生させる専用のAudioSource（空欄の場合は自動的にカメラ等から再生されます）")]
+    [SerializeField] private AudioSource scareAudioSource;
+
     [Tooltip("ドカン！と鳴らす恐怖効果音")]
     [SerializeField] private AudioClip scareSE;
-    [SerializeField][Range(0f, 1f)] private float seVolume = 1.0f;
+
+    [Tooltip("💡 恐怖効果音の音量。1.0を超える数値（2倍、3倍など）を設定して大音量にできます")]
+    [SerializeField] private float seVolume = 1.0f;
 
     [Tooltip("画面に表示させる恐怖画像（UIオブジェクト）。使わない場合は空欄でOK")]
     [SerializeField] private GameObject scareImageUI;
@@ -35,7 +40,7 @@ public class JumpscareTrigger : MonoBehaviour
     [Tooltip("演出終了後、何秒経ったらもう一度次のジャンプスケアを発動可能にするか（連発防止用）")]
     [SerializeField] private float cooldownTime = 3.0f;
 
-    [Header("--- 💡 カメラシェイク（画面揺れ）設定 ---")]
+    [Header("--- カメラシェイク（画面揺れ）設定 ---")]
     [Tooltip("振り向く瞬間の激しい揺れの強さ（1コマ目の衝撃度）")]
     [SerializeField] private float turnShakeMagnitude = 0.3f;
 
@@ -115,15 +120,34 @@ public class JumpscareTrigger : MonoBehaviour
         // 1. プレイヤーの移動・視点操作を完全にロック
         player.IsLocked = true;
 
-        // 2. 恐怖効果音（SE）を再生
-        AudioSource cameraAudio = playerCameraObject != null ? playerCameraObject.GetComponent<AudioSource>() : null;
-        if (cameraAudio != null && scareSE != null)
+        // 2. 💡【音響システム（大音量・AudioSource対応版）】
+        if (scareSE != null)
         {
-            cameraAudio.PlayOneShot(scareSE, seVolume);
-        }
-        else if (scareSE != null)
-        {
-            AudioSource.PlayClipAtPoint(scareSE, player.transform.position, seVolume);
+            // インスペクターで AudioSource が直接指定されている場合
+            if (scareAudioSource != null)
+            {
+                scareAudioSource.PlayOneShot(scareSE, seVolume);
+            }
+            // 指定がない場合のフォールバック1：カメラから再生
+            else if (playerCameraObject != null)
+            {
+                AudioSource cameraAudio = playerCameraObject.GetComponent<AudioSource>();
+                if (cameraAudio != null)
+                {
+                    cameraAudio.PlayOneShot(scareSE, seVolume);
+                }
+                else
+                {
+                    // カメラにAudioSourceがなければ動的に追加して鳴らす
+                    AudioSource newAudio = playerCameraObject.AddComponent<AudioSource>();
+                    newAudio.PlayOneShot(scareSE, seVolume);
+                }
+            }
+            // 指定がない場合のフォールバック2：プレイヤーの位置から再生
+            else
+            {
+                AudioSource.PlayClipAtPoint(scareSE, player.transform.position, seVolume);
+            }
         }
 
         // 3. 恐怖画像（UI）を表示
@@ -163,8 +187,7 @@ public class JumpscareTrigger : MonoBehaviour
                         finalRotation = targetRotation;
                     }
 
-                    // 💡【追加：カメラシェイクの計算】
-                    // 現在の状態（振り向き中か、向き終わった後か）によって揺れの強さを切り替える
+                    // カメラシェイクの計算
                     float currentShakeMagnitude = (elapsed < turnDuration) ? turnShakeMagnitude : lookShakeMagnitude;
 
                     // ランダムなノイズ（揺れ）のオフセットを計算
@@ -179,12 +202,6 @@ public class JumpscareTrigger : MonoBehaviour
 
                     // カメラ自体の角度にシェイクを加えた角度を直接更新
                     playerCameraObject.transform.rotation = shookRotation;
-
-                    // 💡【上下・左右ズレを100%直す最重要対策】
-                    // シェイクされた角度から、度数（オイラー角）を取り出す
-                    Vector3 eulerAngles = shookRotation.eulerAngles;
-                    float pitch = eulerAngles.x;
-                    if (pitch > 180f) pitch -= 360f;
 
                     // FirstPersonControllerの内部角度変数も、シェイクを加えた角度に完全同期
                     if (player != null)

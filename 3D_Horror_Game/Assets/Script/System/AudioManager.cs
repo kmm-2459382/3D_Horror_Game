@@ -25,6 +25,9 @@ public class AudioManager : MonoBehaviour
     private BGMMode currentMode = BGMMode.Patrol;
     private Coroutine fadeCoroutine;
 
+    // 💡【追加】EnemyAIなど、外部から現在のBGMモードを読み取るためのパブリックプロパティ
+    public BGMMode CurrentMode => currentMode;
+
     private void Awake()
     {
         // ドアSEが分離されたため、BGM用の2つだけを動的に取得・追加

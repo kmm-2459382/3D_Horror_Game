@@ -12,6 +12,10 @@ public class FlashlightController : MonoBehaviour
     [SerializeField]
     private Light targetLight; // 操作対象となるSpotlightコンポーネント
 
+    [Tooltip("💡 懐中電灯の本体オブジェクト（3Dモデルなど）。これが無効化（非アクティブ）されている時は、スイッチを押してもON/OFFできなくなります")]
+    [SerializeField]
+    private GameObject flashlightObject;
+
     [Header("Audio (Optional)")]
     [SerializeField]
     private AudioClip toggleSound; // スイッチを切り替えた時の効果音
@@ -29,6 +33,12 @@ public class FlashlightController : MonoBehaviour
             {
                 Debug.LogError("Target Lightが設定されていません！インスペクターからLightをアサインするか、子オブジェクトにLightを配置してください。");
             }
+        }
+
+        // 💡 もし懐中電灯オブジェクトの指定が空っぽなら、自動的にライトのGameObjectを身代わりとしてセットする
+        if (flashlightObject == null && targetLight != null)
+        {
+            flashlightObject = targetLight.gameObject;
         }
 
         // オーディオソースの取得または追加
@@ -65,6 +75,13 @@ public class FlashlightController : MonoBehaviour
     private void ToggleFlashlight()
     {
         if (targetLight == null) return;
+
+        // 💡【最重要対策】参照している懐中電灯オブジェクトが、画面上（Hierarchy上）で無効化されていたら処理を完全に中断する
+        if (flashlightObject != null && !flashlightObject.activeInHierarchy)
+        {
+            // 無効化されているので、ライトの切り替えもSE再生もせずここでリターン
+            return;
+        }
 
         // 状態を反転
         isLightOn = !isLightOn;
