@@ -72,15 +72,29 @@ namespace StarterAssets
 
         // 外部から移動・視点操作を完全にロックするためのフラグ
         public bool IsLocked { get; set; } = false;
+        // 💡【上下・左右対応版】ジャンプスケア時に外部からカメラの向きを100%強制同期させる関数
         public void ForceSyncCameraRotation(Quaternion targetRotation)
         {
-            // 横方向の回転（プレイヤー本体のY軸回転）を上書き
+            // 1. 左右の回転（Transform全体のY軸回転）を同期
             transform.rotation = Quaternion.Euler(0.0f, targetRotation.eulerAngles.y, 0.0f);
 
-            // 縦方向の回転（CinemachineのPitch角度）を上書き
+            // 2. 上下の回転（ピッチ）を同期
             float pitch = targetRotation.eulerAngles.x;
-            if (pitch > 180f) pitch -= 360f; // 角度を-90〜90の範囲にクランプするため変換
+
+            // Unityの仕様上、上向きが270〜360度になるため、StarterAssetsが理解できる -90〜90度の形式に変換
+            if (pitch > 180f) pitch -= 360f;
+
+            // 💡 StarterAssets内部の上下角度制限（TopClamp / BottomClamp）の範囲内に収める
+            pitch = Mathf.Clamp(pitch, BottomClamp, TopClamp);
+
+            // 💡【最重要】StarterAssetsがカメラ制御に使用している内部変数に直接数値を叩き込む
             _cinemachineTargetPitch = pitch;
+
+            // 💡 Cinemachineのターゲット（追従対象オブジェクト）自体のローカル回転も直接上書き
+            if (CinemachineCameraTarget != null)
+            {
+                CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(pitch, 0.0f, 0.0f);
+            }
         }
 
 #if ENABLE_INPUT_SYSTEM

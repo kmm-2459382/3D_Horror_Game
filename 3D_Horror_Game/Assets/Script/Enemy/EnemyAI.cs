@@ -123,11 +123,28 @@ public class EnemyAI : MonoBehaviour
     {
         if (playerTransform == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled) return;
 
-        // ジャンプスケア停止状態の時は、足跡追跡ロジックを含めたすべての行動を100%遮断
+        // 💡【完全フリーズ処理】
+        // ジャンプスケア停止状態の時は、他の全AIロジック、移動アニメ、カスタム回転を
+        // 完全に飛び越えて、プレイヤーを見つめる処理「だけ」を徹底的に実行する
         if (currentState == EnemyState.JumpscareStun)
         {
+            // 毎フレーム、速度を物理的にもナビゲーション的にも「ゼロ」に強制上書き
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+            }
+
+            // アニメーションを毎フレーム「Idle（直立不動）」に強制固定
+            if (animator != null)
+            {
+                animator.SetFloat(speedHash, 0f);
+                animator.SetBool(isChasingHash, false);
+                animator.speed = walkAnimSpeedMultiplier;
+            }
+
             KeepLookingAtPlayer();
-            return;
+            return; // 💡完全にUpdateをここで終わらせる（下の移動ロジックに絶対に触れさせない）
         }
 
         CalculatePlayerVectorAndPath();
@@ -582,32 +599,28 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     private IEnumerator StopEnemyRoutine(float stopDuration, Vector3 exactStopPosition)
     {
+        // 1. 即座にJumpscareStun状態に切り替える（これによりUpdate側の強力なロックが始まります）
         TransitionToState(EnemyState.JumpscareStun);
         Debug.Log($"【敵AI】プレイヤーと接触。正面に固定して {stopDuration}秒間足を止めます。");
 
-        // 💡【新対策】お互いのコライダー（衝突判定）を一時的に取得
-        Collider enemyCollider = GetComponent<Collider>();
-        Collider playerCollider = playerTransform != null ? playerTransform.GetComponent<Collider>() : null;
-
-        // 💡演出中だけ、敵とプレイヤーの間の衝突判定を無効化（すり抜け・押し出しバグを100%防止）
-        if (enemyCollider != null && playerCollider != null)
-        {
-            Physics.IgnoreCollision(enemyCollider, playerCollider, true);
-        }
-
-        // 敵ナビゲーションの強制ワープと即時完全停止
+        // 2. ナビゲーションの過去の目的地（足跡など）を完全にリセットする
         if (agent != null && agent.isOnNavMesh)
         {
+            agent.ResetPath(); // 👈【重要】これまでの足跡や追跡ルートを完全に消去！
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
-            agent.Warp(exactStopPosition); // プレイヤーの正面位置へ強制ワープ
+            agent.Warp(exactStopPosition); // プレイヤーの正面の指定位置にワープ
         }
 
-        if (animator != null)
+        // お互いのコライダーの押し合いを無視
+        Collider[] enemyColliders = GetComponents<Collider>();
+        Collider playerCollider = playerTransform != null ? playerTransform.GetComponent<Collider>() : null;
+        if (playerCollider != null)
         {
-            animator.SetFloat(speedHash, 0f);
-            animator.SetBool(isChasingHash, false);
-            animator.speed = walkAnimSpeedMultiplier;
+            foreach (var col in enemyColliders)
+            {
+                Physics.IgnoreCollision(col, playerCollider, true);
+            }
         }
 
         if (audioManager != null)
@@ -615,7 +628,7 @@ public class EnemyAI : MonoBehaviour
             audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
         }
 
-        // プレイヤーのカメラ（視線）を敵の顔の正面へ向け直す
+        // プレイヤーの視線を敵の正面に向ける
         if (playerTransform != null)
         {
             Vector3 dirToPlayer = (transform.position - playerTransform.position).normalized;
@@ -624,24 +637,15 @@ public class EnemyAI : MonoBehaviour
             {
                 playerTransform.rotation = Quaternion.LookRotation(dirToPlayer);
             }
-
-            // StarterAssetsの視点移動・移動入力を演出中だけ強制的にゼロにする
-            var inputs = playerTransform.GetComponent<StarterAssets.StarterAssetsInputs>();
-            if (inputs != null)
-            {
-                inputs.move = Vector2.zero;
-                inputs.look = Vector2.zero;
-            }
         }
 
-        // 演出時間（2.5秒間）、敵の位置を毎フレームガチガチに固定
+        // 3. 指定された秒数（2.5秒間）、位置を毎フレームガチガチに固定して待機
         float elapsed = 0f;
         while (elapsed < stopDuration)
         {
-            transform.position = exactStopPosition; // 毎フレーム位置を上書き固定
-            KeepLookingAtPlayer();                  // 敵はプレイヤーをじっと見つめる
+            transform.position = exactStopPosition; // 座標を完全固定
 
-            // 💡プレイヤー側の入力も毎フレームクリアして動けないようにロックする
+            // プレイヤーの入力も演出中のみ毎フレーム消去して動けないようにする
             if (playerTransform != null)
             {
                 var inputs = playerTransform.GetComponent<StarterAssets.StarterAssetsInputs>();
@@ -656,10 +660,13 @@ public class EnemyAI : MonoBehaviour
             yield return null;
         }
 
-        // 💡【演出終了】衝突判定（コライダー）を元に戻して、再び当たるようにする
-        if (enemyCollider != null && playerCollider != null)
+        // 4. 演出終了にともない、衝突判定を元に戻す
+        if (playerCollider != null)
         {
-            Physics.IgnoreCollision(enemyCollider, playerCollider, false);
+            foreach (var col in enemyColliders)
+            {
+                Physics.IgnoreCollision(col, playerCollider, false);
+            }
         }
 
         if (agent != null && agent.isOnNavMesh)
