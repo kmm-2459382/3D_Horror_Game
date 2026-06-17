@@ -26700,7 +26700,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &462911992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26714,16 +26714,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   currentPhase: 0
-  hasFlashlight: 0
-  hasRooftopKey: 0
+  targetRooftopDoor: {fileID: 1996939952}
   audioManager: {fileID: 55204385}
-  flashlightController: {fileID: 2083252332}
   playerObject: {fileID: 8616685848286051011}
-  requiredItemCount: 5
-  wakeUpPoint: {fileID: 82924561}
   stareDuration: 3
-  backDuration: 2
-  backSpeed: 1.5
+  useSceneChange: 1
+  nextSceneName: Apartment_Phase2
+  oldObjects: {fileID: 0}
+  newObjects: {fileID: 0}
 --- !u!4 &462911993
 Transform:
   m_ObjectHideFlags: 0
@@ -211701,14 +211699,14 @@ SceneRoots:
   - {fileID: 884220133}
   - {fileID: 8997996946438873209}
   - {fileID: 6064258}
-  - {fileID: 501341062}
   - {fileID: 8752233476416004184}
   - {fileID: 740473753}
   - {fileID: 395974767}
   - {fileID: 1992703182}
   - {fileID: 6349058342820080199}
   - {fileID: 54854945}
-  - {fileID: 913700506}
   - {fileID: 55204384}
+  - {fileID: 501341062}
+  - {fileID: 913700506}
   - {fileID: 462911993}
   - {fileID: 82924561}
