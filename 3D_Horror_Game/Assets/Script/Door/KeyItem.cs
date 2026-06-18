@@ -80,7 +80,7 @@ public class KeyItem : MonoBehaviour
         // GameMessageUIに指定・登録してあるテキストコンポーネントへ、拾った鍵のメッセージを黄色い文字で表示します
         if (GameMessageUI.Instance != null)
         {
-            GameMessageUI.Instance.ShowMessage($"「{keyId}」を手に入れた！", Color.yellow);
+            GameMessageUI.Instance.ShowMessage($"「{keyId}の鍵」を手に入れた", Color.white);
         }
         else
         {

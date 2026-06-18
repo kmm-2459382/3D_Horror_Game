@@ -10,14 +10,31 @@ public class EnemyAI : MonoBehaviour
 {
     private enum EnemyState
     {
-        PatrolWalk,      // 巡回（歩き）
-        PatrolIdle,      // 巡回（立ち止まり）
-        Chase,           // プレイヤー追跡
+        PatrolWalk,
+        PatrolIdle,
+        Chase,
         LinearDash,
         PredictedChase,
         LookAround,
         JumpscareStun
     }
+
+    [Header("--- 【デバッグ設定】 ---")]
+    [Tooltip("最初からtrueにしておいて大丈夫です！チェックが入っている間は見失いません。途中で外すとリアルタイムに見失うようになります。")]
+    [SerializeField] private bool debugAlwaysChasePlayer = true;
+
+    // ─── 👁️【新設：インスペクター可視化用モニター】 ───
+    [Header("--- 🔍 【AI内部状態モニター（変更不可）】 ---")]
+    [SerializeField] private string 現在のステート;
+    [SerializeField] private bool エージェント停止フラグ_isStopped;
+    [SerializeField] private float 目的地への残り距離_remainingDistance;
+    [SerializeField] private string パス計算の状態_pathStatus;
+    [SerializeField] private bool 目的地が存在するか_hasPath;
+    [SerializeField] private Vector3 現在の目標座標_destination;
+
+    [Header("--- 【統合】敵の全挙動カスタマイズ総合倍率 ---")]
+    [Tooltip("数値を直接入力してください (1.0 = 従来の等倍)。この値一つですべての動き（速度・制動・旋回）の倍率が変わります。")]
+    [SerializeField] private float enemyMotionMultiplier = 1.0f;
 
     [Header("--- オーディオ設定 ---")]
     [SerializeField] private AudioManager audioManager;
@@ -26,7 +43,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float searchRadius = 25f;
     [SerializeField] private float searchAngle = 140f;
 
-    [Header("--- 移動速度設定 ---")]
+    [Header("--- 移動速度設定（ベース値） ---")]
     [SerializeField] private float walkSpeed = 1.5f;
     [SerializeField] private float runSpeed = 4.5f;
 
@@ -55,8 +72,12 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float searchAroundRadius = 5f;
 
     [Header("--- 扉自動検知・開放設定 ---")]
+    [Tooltip("ドアを感知するベースの距離（等倍時）。速度が上がると自動でこの距離も拡張されます")]
     [SerializeField] private float doorCheckRadius = 1.8f;
-    [SerializeField] private float doorCheckInterval = 0.1f;
+    [SerializeField] private float doorCheckInterval = 0.05f;
+
+    [Tooltip("シーン内の DoorController オブジェクトをここにセットしてください")]
+    [SerializeField] private DoorController doorController;
 
     private NavMeshAgent agent;
     private Animator animator;
@@ -77,6 +98,9 @@ public class EnemyAI : MonoBehaviour
 
     private float pathRecordTimer;
     private float doorCheckTimer;
+
+    // 💡【新設】現在のBGM状態を追跡するためのキャッシュフラグ（重複呼び出し防止）
+    private bool isBGMChasing = false;
 
     private readonly int speedHash = Animator.StringToHash("Speed");
     private readonly int isChasingHash = Animator.StringToHash("IsChasing");
@@ -110,9 +134,11 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
+        // 初期はパトロールBGM
         if (audioManager != null)
         {
             audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+            isBGMChasing = false;
         }
 
         if (agent != null && agent.isOnNavMesh)
@@ -125,84 +151,151 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        // ─── 屋上演出フェーズにおける挙動 ───
-        if (GameManager.Instance != null)
-        {
-            GameManager.GamePhase phase = GameManager.Instance.CurrentPhase;
-
-            if (phase <= GameManager.GamePhase.Phase4_RooftopEvent)
-            {
-                // BGMがAlertChase（見つめ合い終了）になるまでは完全停止
-                if (audioManager == null || audioManager.CurrentMode != AudioManager.BGMMode.AlertChase)
-                {
-                    if (agent != null && agent.isOnNavMesh)
-                    {
-                        agent.isStopped = true;
-                        agent.velocity = Vector3.zero;
-                    }
-                    if (animator != null)
-                    {
-                        animator.SetFloat(speedHash, 0f);
-                        animator.SetBool(isChasingHash, false);
-                    }
-                    KeepLookingAtPlayer(); // じっとプレイヤーを凝視
-                    return;
-                }
-
-                // 見つめ合い終了後：確定追跡（超高速で突進）
-                if (agent != null && agent.isActiveAndEnabled && playerTransform != null)
-                {
-                    agent.isStopped = false;
-                    agent.speed = 8.5f; // 通常時より大幅に速い速度
-                    agent.SetDestination(playerTransform.position);
-
-                    // 💡 移動速度が早いので、振り向き速度を「1200」の超高速にして適用
-                    ApplyCustomRotation(1200f);
-                    UpdateAnimation();
-                }
-                return;
-            }
-        }
-
-        // ─── 通常AIロジック（後半戦以降） ───
         if (playerTransform == null || !agent.isOnNavMesh || !agent.isActiveAndEnabled) return;
 
+        // ─── インスペクター可視化モニターのリアルタイム同期 ───
+        MonitorAIStatus();
+
+        // 1. 完全スタン状態の処理
         if (currentState == EnemyState.JumpscareStun)
         {
-            if (agent != null && agent.isOnNavMesh)
-            {
-                agent.isStopped = true;
-                agent.velocity = Vector3.zero;
-            }
-            if (animator != null)
-            {
-                animator.SetFloat(speedHash, 0f);
-                animator.SetBool(isChasingHash, false);
-                animator.speed = walkAnimSpeedMultiplier;
-            }
-            KeepLookingAtPlayer();
+            HandleStunBehavior();
+            UpdateBGMState(); // 💡 スタンス中もBGMの判定を行う（Patrolへ引き戻すため）
             return;
         }
 
+        // 2. 共通センサー更新
         CalculatePlayerVectorAndPath();
         CheckAndOpenNearbyDoors();
 
+        // 3. デバッグフラグの適用
+        bool isAlwaysChaseActive = debugAlwaysChasePlayer;
         bool canSeePlayer = CheckForPlayer();
 
+        if (isAlwaysChaseActive)
+        {
+            canSeePlayer = true;
+            if (currentState != EnemyState.Chase)
+            {
+                TransitionToState(EnemyState.Chase);
+            }
+        }
+
+        // 4. 各挙動関数へ分岐
         switch (currentState)
         {
             case EnemyState.PatrolWalk: HandlePatrolWalk(canSeePlayer); break;
             case EnemyState.PatrolIdle: HandlePatrolIdle(canSeePlayer); break;
-            case EnemyState.Chase: HandleChase(canSeePlayer); break;
+            case EnemyState.Chase: HandleChase(canSeePlayer, isAlwaysChaseActive); break;
             case EnemyState.LinearDash: HandleLinearDash(canSeePlayer); break;
             case EnemyState.PredictedChase: HandlePredictedChase(canSeePlayer); break;
             case EnemyState.LookAround: HandleLookAround(canSeePlayer); break;
         }
 
-        // 通常時の振り向き（チェイス時はchaseTurnSpeed、それ以外はnormalTurnSpeed）
+        // パラメータ・回転・アニメーション・BGM同期
+        UpdateAgentDynamicParameters(isAlwaysChaseActive);
         float currentTurnSpeed = (currentState == EnemyState.Chase) ? chaseTurnSpeed : normalTurnSpeed;
-        ApplyCustomRotation(currentTurnSpeed);
+        ApplyCustomRotation(currentTurnSpeed, isAlwaysChaseActive);
         UpdateAnimation();
+
+        // 💡【重要追加】毎フレームのBGM監視と切り替えを実行
+        UpdateBGMState();
+    }
+
+    /// <summary>
+    /// インスペクター上で現在の設定値や状態を見える化する関数
+    /// </summary>
+    private void MonitorAIStatus()
+    {
+        現在のステート = currentState.ToString();
+        エージェント停止フラグ_isStopped = agent.isStopped;
+        目的地への残り距離_remainingDistance = agent.remainingDistance;
+        パス計算の状態_pathStatus = agent.pathStatus.ToString();
+        目的地が存在するか_hasPath = agent.hasPath;
+        現在の目標座標_destination = agent.destination;
+    }
+
+    private void HandleStunBehavior()
+    {
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+        if (animator != null)
+        {
+            animator.SetFloat(speedHash, 0f);
+            animator.SetBool(isChasingHash, false);
+            animator.speed = walkAnimSpeedMultiplier;
+        }
+        KeepLookingAtPlayer();
+    }
+
+    /// <summary>
+    /// 💡【BGM動的切り替え制御】
+    /// 追跡中（Chase/LinearDash/PredictedChase）かつ 敵が自由に動ける時に AlertChase へ切り替えます。
+    /// </summary>
+    private void UpdateBGMState()
+    {
+        if (audioManager == null) return;
+
+        bool isAgentMovable = (!agent.isStopped && currentState != EnemyState.JumpscareStun);
+
+        // 判定ロジック
+        if (isAgentMovable)
+        {
+            // 完全に視認している状態
+            if (currentState == EnemyState.Chase)
+            {
+                if (audioManager.CurrentMode != AudioManager.BGMMode.AlertChase)
+                    audioManager.ChangeBGMState(AudioManager.BGMMode.AlertChase);
+            }
+            // 見失った直後の推測追跡・ダッシュ状態
+            else if (currentState == EnemyState.PredictedChase || currentState == EnemyState.LinearDash)
+            {
+                if (audioManager.CurrentMode != AudioManager.BGMMode.LostTracking)
+                    audioManager.ChangeBGMState(AudioManager.BGMMode.LostTracking);
+            }
+            // それ以外（巡回など）
+            else
+            {
+                if (audioManager.CurrentMode != AudioManager.BGMMode.Patrol)
+                    audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+            }
+        }
+        else
+        {
+            // 停止・スタン中は巡回BGMへ
+            if (audioManager.CurrentMode != AudioManager.BGMMode.Patrol)
+                audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+        }
+    }
+
+    /// <summary>
+    /// 【滑りやすさ反比例化】
+    /// 総合倍率が上がれば上がるほど、制動力(加速度)をそれ以上に引き上げ、
+    /// ドリフトせずにピタッと止まって鋭角に曲がれるようにする
+    /// </summary>
+    private void UpdateAgentDynamicParameters(bool isAlwaysChaseActive)
+    {
+        float baseSpeed = walkSpeed;
+        float baseAcceleration = isAlwaysChaseActive ? 120f : 80f;
+        float baseAngular = isAlwaysChaseActive ? 360f : 300f;
+
+        if (currentState == EnemyState.Chase || currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase)
+        {
+            baseSpeed = runSpeed;
+            baseAcceleration = isAlwaysChaseActive ? 120f : 80f;
+            baseAngular = isAlwaysChaseActive ? 360f : 300f;
+        }
+
+        agent.speed = baseSpeed * enemyMotionMultiplier;
+
+        float multiplierSquare = enemyMotionMultiplier * enemyMotionMultiplier;
+        float brakeCompensation = Mathf.Max(enemyMotionMultiplier, multiplierSquare);
+
+        agent.acceleration = baseAcceleration * brakeCompensation;
+        agent.angularSpeed = baseAngular * brakeCompensation;
     }
 
     private void KeepLookingAtPlayer()
@@ -218,13 +311,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 💡 任意の回転速度を受け取れるように拡張しました
-    private void ApplyCustomRotation(float turnSpeed)
+    private void ApplyCustomRotation(float turnSpeed, bool isAlwaysChaseActive)
     {
         Vector3 targetDirection = Vector3.zero;
 
-        // チェイス時、または屋上イベント時
-        if ((currentState == EnemyState.Chase || (GameManager.Instance != null && GameManager.Instance.CurrentPhase == GameManager.GamePhase.Phase4_RooftopEvent)) && playerTransform != null)
+        if ((currentState == EnemyState.Chase || isAlwaysChaseActive) && playerTransform != null)
         {
             targetDirection = playerTransform.position - transform.position;
         }
@@ -237,7 +328,8 @@ public class EnemyAI : MonoBehaviour
         if (targetDirection.magnitude > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+            float finalTurnSpeed = isAlwaysChaseActive ? 1200f : turnSpeed;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, finalTurnSpeed * enemyMotionMultiplier * Time.deltaTime);
         }
     }
 
@@ -267,14 +359,26 @@ public class EnemyAI : MonoBehaviour
 
             Vector3 rayStartPos = transform.position + Vector3.up * 0.8f;
             RaycastHit hit;
-            if (Physics.Raycast(rayStartPos, moveDirection, out hit, doorCheckRadius))
+
+            float scaledCheckRadius = Mathf.Max(doorCheckRadius, doorCheckRadius * enemyMotionMultiplier);
+
+            if (Physics.Raycast(rayStartPos, moveDirection, out hit, scaledCheckRadius))
             {
                 if (hit.collider.CompareTag("Door") || (hit.transform.parent != null && hit.transform.parent.CompareTag("Door")))
                 {
                     NewDoorMech doorScript = hit.collider.gameObject.GetComponentInParent<NewDoorMech>();
-                    if (doorScript != null && !doorScript.doorBool)
+
+                    if (doorScript != null)
                     {
-                        doorScript.doorBool = true;
+                        if (doorController != null && doorController.IsDoorLocked(doorScript))
+                        {
+                            return;
+                        }
+
+                        if (!doorScript.doorBool)
+                        {
+                            doorScript.doorBool = true;
+                        }
                     }
                 }
             }
@@ -322,10 +426,26 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void HandleChase(bool canSeePlayer)
+    private void HandleChase(bool canSeePlayer, bool isAlwaysChaseActive)
     {
-        if (canSeePlayer) { agent.SetDestination(playerTransform.position); lastSeenPosition = playerTransform.position; }
-        else TransitionToState(EnemyState.LinearDash);
+        if (isAlwaysChaseActive)
+        {
+            agent.SetDestination(playerTransform.position);
+            lastSeenPosition = playerTransform.position;
+            playerPositionHistory.Clear();
+        }
+        else
+        {
+            if (canSeePlayer)
+            {
+                agent.SetDestination(playerTransform.position);
+                lastSeenPosition = playerTransform.position;
+            }
+            else
+            {
+                TransitionToState(EnemyState.LinearDash);
+            }
+        }
     }
 
     private void HandleLinearDash(bool canSeePlayer)
@@ -351,21 +471,38 @@ public class EnemyAI : MonoBehaviour
             float dist = Vector3.Distance(transform.position, playerPositionHistory[i]);
             if (dist < minDistance) { minDistance = dist; closestIndex = i; }
         }
-        for (int i = closestIndex; i < playerPositionHistory.Count; i++) { activeChasePath.Enqueue(playerPositionHistory[i]); }
-    }
 
-    private void HandleRecordedChase(bool canSeePlayer) { HandlePredictedChase(canSeePlayer); }
+        int startIndex = Mathf.Max(closestIndex, playerPositionHistory.Count - 8);
+
+        for (int i = startIndex; i < playerPositionHistory.Count; i++)
+        {
+            activeChasePath.Enqueue(playerPositionHistory[i]);
+        }
+    }
 
     private void HandlePredictedChase(bool canSeePlayer)
     {
         if (canSeePlayer) { TransitionToState(EnemyState.Chase); return; }
+
         if (activeChasePath.Count > 0)
         {
             Vector3 nextWaypoint = activeChasePath.Peek();
-            agent.SetDestination(nextWaypoint);
-            if (Vector3.Distance(transform.position, nextWaypoint) <= waypointTolerance) activeChasePath.Dequeue();
+
+            if (Vector3.Distance(agent.destination, nextWaypoint) > 0.3f)
+            {
+                agent.SetDestination(nextWaypoint);
+            }
+
+            if ((!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance) ||
+                Vector3.Distance(transform.position, nextWaypoint) <= waypointTolerance)
+            {
+                activeChasePath.Dequeue();
+            }
         }
-        else TransitionToState(EnemyState.LookAround);
+        else
+        {
+            TransitionToState(EnemyState.LookAround);
+        }
     }
 
     private void HandleLookAround(bool canSeePlayer)
@@ -377,9 +514,19 @@ public class EnemyAI : MonoBehaviour
         {
             Vector3 randomSearchPos = lastSeenPosition + Random.insideUnitSphere * searchAroundRadius;
             NavMeshHit hit;
-            if (NavMesh.SamplePosition(randomSearchPos, out hit, searchAroundRadius, NavMesh.AllAreas)) agent.SetDestination(hit.position);
+            if (NavMesh.SamplePosition(randomSearchPos, out hit, searchAroundRadius, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(agent.destination, hit.position) > 0.5f)
+                {
+                    agent.SetDestination(hit.position);
+                }
+            }
         }
-        if (forgetTimer >= chasingForgetTime) TransitionToState(EnemyState.PatrolIdle);
+
+        if (forgetTimer >= chasingForgetTime)
+        {
+            TransitionToState(EnemyState.PatrolIdle);
+        }
     }
 
     private void SetRandomPatrolDestination()
@@ -387,7 +534,10 @@ public class EnemyAI : MonoBehaviour
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, NavMesh.AllAreas)) agent.SetDestination(hit.position);
+        if (NavMesh.SamplePosition(randomDirection, out hit, patrolRadius, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
+        }
     }
 
     private void TransitionToState(EnemyState newState)
@@ -397,26 +547,46 @@ public class EnemyAI : MonoBehaviour
 
         switch (currentState)
         {
-            case EnemyState.PatrolWalk: agent.speed = walkSpeed; agent.isStopped = false; break;
-            case EnemyState.PatrolIdle: agent.isStopped = true; idleTimer = 0f; currentIdleDuration = Random.Range(minIdleTime, maxIdleTime); break;
-            case EnemyState.Chase: agent.speed = runSpeed; agent.isStopped = false; break;
+            case EnemyState.PatrolWalk:
+                agent.isStopped = false;
+                break;
+
+            case EnemyState.PatrolIdle:
+                agent.ResetPath();
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+                idleTimer = 0f;
+                currentIdleDuration = Random.Range(minIdleTime, maxIdleTime);
+                break;
+
+            case EnemyState.Chase:
+                agent.isStopped = false;
+                break;
+
             case EnemyState.LinearDash:
-                agent.speed = runSpeed; agent.isStopped = false; visionLostTimer = 0f;
+                agent.isStopped = false;
+                visionLostTimer = 0f;
                 Vector3 targetDashPos = lastSeenPosition + (playerMoveDirection * chasePredictDistance);
                 NavMeshHit hit;
                 if (NavMesh.SamplePosition(targetDashPos, out hit, chasePredictDistance, NavMesh.AllAreas)) agent.SetDestination(hit.position);
                 else agent.SetDestination(targetDashPos);
                 break;
-            case EnemyState.PredictedChase: agent.speed = runSpeed; agent.isStopped = false; break;
-            case EnemyState.LookAround: agent.speed = walkSpeed; agent.isStopped = false; forgetTimer = 0f; agent.SetDestination(lastSeenPosition); break;
-            case EnemyState.JumpscareStun: agent.isStopped = true; agent.velocity = Vector3.zero; break;
-        }
 
-        if (audioManager != null && GameManager.Instance != null && GameManager.Instance.CurrentPhase > GameManager.GamePhase.Phase4_RooftopEvent)
-        {
-            if (currentState == EnemyState.Chase) audioManager.ChangeBGMState(AudioManager.BGMMode.AlertChase);
-            else if (currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase) audioManager.ChangeBGMState(AudioManager.BGMMode.LostTracking);
-            else audioManager.ChangeBGMState(AudioManager.BGMMode.Patrol);
+            case EnemyState.PredictedChase:
+                agent.isStopped = false;
+                break;
+
+            case EnemyState.LookAround:
+                agent.isStopped = false;
+                forgetTimer = 0f;
+                agent.SetDestination(lastSeenPosition);
+                break;
+
+            case EnemyState.JumpscareStun:
+                agent.ResetPath();
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+                break;
         }
     }
 
@@ -424,7 +594,7 @@ public class EnemyAI : MonoBehaviour
     {
         float currentPhysicalSpeed = agent.velocity.magnitude;
         animator.SetFloat(speedHash, currentPhysicalSpeed);
-        bool isRunning = (currentState == EnemyState.Chase || currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase || (GameManager.Instance != null && GameManager.Instance.CurrentPhase == GameManager.GamePhase.Phase4_RooftopEvent));
+        bool isRunning = (currentState == EnemyState.Chase || currentState == EnemyState.LinearDash || currentState == EnemyState.PredictedChase);
         animator.SetBool(isChasingHash, isRunning);
         animator.speed = isRunning ? runAnimSpeedMultiplier : walkAnimSpeedMultiplier;
     }
@@ -435,8 +605,39 @@ public class EnemyAI : MonoBehaviour
         {
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.OnPlayerCaughtAtRooftop();
+                GameManager.Instance.OnPlayerCaught();
             }
+        }
+    }
+
+    public void SetAlwaysChase(bool enable)
+    {
+        debugAlwaysChasePlayer = enable;
+        Debug.Log($"【敵AI】debugAlwaysChasePlayer が {enable} に書き換えられました。");
+
+        if (!enable && agent != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            playerPositionHistory.Clear();
+            activeChasePath.Clear();
+        }
+    }
+
+    public void ForceStunState(bool shouldStun)
+    {
+        if (shouldStun)
+        {
+            TransitionToState(EnemyState.JumpscareStun);
+            Debug.Log("【敵AI】イベント用の完全固定状態（JumpscareStun）に入りました。");
+        }
+        else
+        {
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+            }
+            TransitionToState(EnemyState.Chase);
+            Debug.Log("【敵AI】固定状態が解除され、猛追跡を開始しました。");
         }
     }
 }

@@ -47,6 +47,14 @@ public class JumpscareTrigger : MonoBehaviour
     [Tooltip("正面を向いた後の持続的な震えの強さ（恐怖による戦慄）")]
     [SerializeField] private float lookShakeMagnitude = 0.05f;
 
+    [Header("--- シーン遷移設定 ---")]
+    [Tooltip("遷移先のシーン名")]
+    [SerializeField] private string nextSceneName = "GameOverScene";
+    [Tooltip("フェード用のCanvasGroup（アルファ値で制御します）")]
+    [SerializeField] private CanvasGroup fadePanel;
+    [Tooltip("フェードにかかる時間")]
+    [SerializeField] private float fadeDuration = 1.0f;
+
     private bool isTriggered = false;
 
     private void OnTriggerEnter(Collider other)
@@ -254,6 +262,21 @@ public class JumpscareTrigger : MonoBehaviour
             {
                 enemyAgent.enabled = true;
             }
+
+            // --- 追加：フェードしてシーン遷移 ---
+            if (fadePanel != null)
+            {
+                float alpha = 0f;
+                while (alpha < 1f)
+                {
+                    alpha += Time.deltaTime / fadeDuration;
+                    fadePanel.alpha = alpha;
+                    yield return null;
+                }
+            }
+
+            // シーン遷移
+            UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
 
             enemy.enabled = true;
             Debug.Log("【ジャンプスケア】演出終了。敵のAIを再開しました。");

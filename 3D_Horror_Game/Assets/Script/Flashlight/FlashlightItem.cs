@@ -9,10 +9,10 @@ public class FlashlightItem : MonoBehaviour
 
     [Header("--- 演出・通知の設定（GameMessageUIのテキストに表示されます） ---")]
     [Tooltip("拾った時に画面に出すメッセージの内容")]
-    [SerializeField] private string pickupMessage = "懐中電灯を手に入れた！";
+    [SerializeField] private string pickupMessage = "懐中電灯を手に入れた";
 
     [Tooltip("メッセージの文字の色")]
-    [SerializeField] private Color messageColor = Color.yellow;
+    [SerializeField] private Color messageColor = Color.white;
 
     [Header("--- 効果音の設定 ---")]
     [Tooltip("拾った時に鳴らす効果音（カチャッ、スイッチ音など）")]
