@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 0
+  m_ReflectionIntensity: 0.3
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 519889886}
   m_UseRadianceAmbientProbe: 0
@@ -3807,8 +3807,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41eb2df5303179e44bab435126800cfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  patrolBGM: {fileID: 8300000, guid: d3bb90c633c52f64ab42b368c59fa624, type: 3}
-  chaseBGM: {fileID: 8300000, guid: 7c736a686111da946a732fe0a381fcd6, type: 3}
+  patrolBGM: {fileID: 0}
+  chaseBGM: {fileID: 0}
   fadeDuration: 1.5
   reDiscoverFadeDuration: 0.5
   maxVolume: 0.5

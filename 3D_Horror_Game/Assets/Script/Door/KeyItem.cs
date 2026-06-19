@@ -62,7 +62,7 @@ public class KeyItem : MonoBehaviour
     /// <summary>
     /// 【外部連携用メイン関数】
     /// 鍵をインベントリに追加し、音を鳴らして自身を消去します。
-    /// （PlayerInteractorなどのRaycastシステムから呼び出すことも可能です）
+    /// （PlayerInteractorなどのRaycastシステムから呼び出すことも可能）
     /// </summary>
     /// <param name="playerInventory">鍵を追加する対象のプレイヤーインベントリ参照</param>
     public void PickupKey(PlayerInventory playerInventory)

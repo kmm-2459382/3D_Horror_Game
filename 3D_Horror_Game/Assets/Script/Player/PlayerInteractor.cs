@@ -119,6 +119,17 @@ public class PlayerInteractor : MonoBehaviour
                 lastInteractTime = Time.time; // 成功時間を記録
                 return; // 懐中電灯の処理をした場合はここで終了
             }
+
+            // --- 4. パズル用ボタンへのインタラクト処理 ---
+            PushButton button = hit.collider.GetComponentInParent<PushButton>();
+
+            if (button != null)
+            {
+                Debug.Log($"【ボタン操作】{button.gameObject.name} を押しました。");
+                button.OnInteract(); // ボタン側の処理を呼び出す
+                lastInteractTime = Time.time;
+                return; // ボタンの処理をした場合はここで終了
+            }
         }
     }
 }

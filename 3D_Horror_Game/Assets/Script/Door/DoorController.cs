@@ -42,7 +42,7 @@ public class DoorController : MonoBehaviour
 
     [Header("--- 部屋別・扉連動管理リスト（多重構造） ---")]
     [Tooltip("部屋ごとにグループ化して、すべてのドア連動グループを登録・管理します")]
-    [SerializeField] private List<RoomData> roomDoorsList = new List<RoomData>();
+    [SerializeField] public List<RoomData> roomDoorsList = new List<RoomData>();
 
     [Header("--- 鍵操作用オーディオ設定 (3D) ---")]
     [Tooltip("鍵がかかっていてドアが開かない時のガチャガチャ音")]
@@ -202,7 +202,7 @@ public class DoorController : MonoBehaviour
         return currentGroup.isLocked;
     }
 
-    private DoorGroupSettings FindDoorGroup(NewDoorMech targetDoor)
+    public DoorGroupSettings FindDoorGroup(NewDoorMech targetDoor)
     {
         foreach (var room in roomDoorsList)
         {
@@ -223,7 +223,29 @@ public class DoorController : MonoBehaviour
         {
             if (door != null)
             {
-                door.doorBool = state;
+                // 💡 ロックがかかる瞬間にドアを強制的に閉じる（doorBool = false）
+                if (group.isLocked)
+                {
+                    door.doorBool = false;
+                }
+                else
+                {
+                    door.doorBool = state;
+                }
+            }
+        }
+    }
+
+    public void UpdateLockState(DoorGroupSettings group, bool locked)
+    {
+        group.isLocked = locked;
+
+        // ロックされた場合は、連動するすべてのドアを閉じる
+        if (group.isLocked)
+        {
+            foreach (var door in group.targetDoors)
+            {
+                if (door != null) door.doorBool = false;
             }
         }
     }
