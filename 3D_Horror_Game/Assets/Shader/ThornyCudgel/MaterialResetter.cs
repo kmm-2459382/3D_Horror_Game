@@ -1,3 +1,4 @@
+#if UNITY_EDITOR // エディタ実行時のみ有効にする
 using UnityEngine;
 using UnityEditor;
 
@@ -10,7 +11,6 @@ public class MaterialResetter : Editor
         {
             if (obj is Material mat)
             {
-                // マテリアルにこびりついた全キーワードを削除
                 foreach (string keyword in mat.shaderKeywords)
                 {
                     mat.DisableKeyword(keyword);
@@ -21,3 +21,4 @@ public class MaterialResetter : Editor
         }
     }
 }
+#endif // ここまで
