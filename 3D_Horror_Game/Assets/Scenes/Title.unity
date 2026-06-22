@@ -33871,7 +33871,7 @@ GameObject:
   - component: {fileID: 729749768}
   - component: {fileID: 729749767}
   m_Layer: 0
-  m_Name: TitleManager
+  m_Name: SettingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33889,6 +33889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16292f75af951f446bee1a5ec258dfe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleManager
+  titleSceneName: Title
   gameSceneName: Phase1
 --- !u!4 &729749768
 Transform:
