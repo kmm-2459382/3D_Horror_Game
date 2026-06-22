@@ -14,6 +14,9 @@ public class SettingManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("ゲームを開始します...");
+        Time.timeScale = 1f; // 時間を戻す
+        Cursor.lockState = CursorLockMode.Locked; // ロック状態にリセット
+        Cursor.visible = false;
         SceneManager.LoadScene(gameSceneName);
     }
 
@@ -23,6 +26,9 @@ public class SettingManager : MonoBehaviour
     public void ResetGame()
     {
         Debug.Log("ゲームをリセットします...");
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None; // タイトルなら表示
+        Cursor.visible = true;
         SceneManager.LoadScene(titleSceneName);
     }
 
