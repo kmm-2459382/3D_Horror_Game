@@ -7,17 +7,14 @@ public class CursorController : MonoBehaviour
 
     void Start()
     {
-        // カーソルを隠す設定
-        Cursor.visible = !hideCursor;
+        // ゲーム開始時またはシーンロード時の初期状態のみを設定
+        ApplyCursorState(!hideCursor);
+    }
 
-        // カーソルを画面中央に固定（ロック）する設定
-        if (hideCursor)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
+    // 内部でカーソル状態を反映するメソッド
+    private void ApplyCursorState(bool shouldShowCursor)
+    {
+        Cursor.visible = shouldShowCursor;
+        Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
     }
 }

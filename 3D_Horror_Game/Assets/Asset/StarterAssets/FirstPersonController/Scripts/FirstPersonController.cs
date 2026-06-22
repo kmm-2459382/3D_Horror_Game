@@ -144,6 +144,7 @@ namespace StarterAssets
 
         private void Update()
         {
+            if (Time.timeScale <= 0f) return;
             // ---- 💡 追加：もしロック状態なら移動処理をスキップする ----
             if (IsLocked) return;
             JumpAndGravity();
@@ -153,6 +154,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
+            if (Time.timeScale <= 0f) return;
             // ---- 💡 追加：もしロック状態なら視点移動（マウス操作）をスキップする ----
             if (IsLocked) return;
             CameraRotation();
@@ -167,22 +169,45 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
-            // if there is an input
-            if (_input.look.sqrMagnitude >= _threshold)
+            //// if there is an input
+            //if (_input.look.sqrMagnitude >= _threshold)
+            //{
+            //    //Don't multiply mouse input by Time.deltaTime
+            //    float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+
+            //    _cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
+            //    _rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
+
+            //    // clamp our pitch rotation
+            //    _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+
+            //    // Update Cinemachine camera target pitch
+            //    CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
+
+            //    // rotate the player left and right
+            //    transform.Rotate(Vector3.up * _rotationVelocity);
+            //}
+            // StarterAssetsInputsの 'look' を無視し、直接マウスのDeltaを参照する
+
+
+            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+
+            // 💡 対策：あまりに大きな値（例：1フレームで100ピクセル以上動いたような値）は
+            // ポーズ解除時の誤検知とみなして無視する
+            if (mouseDelta.magnitude > 50f)
             {
-                //Don't multiply mouse input by Time.deltaTime
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                return;
+            }
 
-                _cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
-                _rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
+            if (mouseDelta.magnitude > 0.001f)
+            {
+                float sensitivity = RotationSpeed * 0.05f;
+                _cinemachineTargetPitch -= mouseDelta.y * sensitivity;
+                _rotationVelocity = mouseDelta.x * sensitivity;
 
-                // clamp our pitch rotation
                 _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
-                // Update Cinemachine camera target pitch
                 CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
-
-                // rotate the player left and right
                 transform.Rotate(Vector3.up * _rotationVelocity);
             }
         }
