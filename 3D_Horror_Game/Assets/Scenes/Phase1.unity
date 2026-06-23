@@ -1884,8 +1884,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: -0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.62, y: 2.72, z: 0.11}
+  m_Center: {x: -0.83, y: 1.335, z: 0}
 --- !u!1 &22486481
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,8 +2398,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1 &26227334
 GameObject:
   m_ObjectHideFlags: 0
@@ -7084,8 +7084,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.62, y: 2.72, z: 0.11}
+  m_Center: {x: 0.83, y: 1.335, z: 0}
 --- !u!108 &103500992 stripped
 Light:
   m_CorrespondingSourceObject: {fileID: 5633911068024220331, guid: 82d97549d156e514aaf956ba55e39da4, type: 3}
@@ -7218,8 +7218,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.7, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: 0.676, y: 1.265, z: 0}
 --- !u!1 &107598512
 GameObject:
   m_ObjectHideFlags: 0
@@ -18013,8 +18013,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: -0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: -0.676, y: 1.265, z: 0}
 --- !u!1001 &292251378
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24263,8 +24263,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &402135357
 GameObject:
   m_ObjectHideFlags: 0
@@ -30694,8 +30694,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.62, y: 2.72, z: 0.11}
+  m_Center: {x: 0.83, y: 1.335, z: 0}
 --- !u!1 &525406952
 GameObject:
   m_ObjectHideFlags: 0
@@ -32513,8 +32513,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1001 &557089845
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34376,8 +34376,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1 &589114882
 GameObject:
   m_ObjectHideFlags: 0
@@ -37655,8 +37655,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: -0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.62, y: 2.72, z: 0.11}
+  m_Center: {x: -0.83, y: 1.335, z: 0}
 --- !u!1 &659209480
 GameObject:
   m_ObjectHideFlags: 0
@@ -38617,7 +38617,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseManager
   pauseCanvas: {fileID: 2111078317}
-  cursorController: {fileID: 1415606596}
   playerCameraScript: {fileID: 1038252488}
 --- !u!4 &672192431
 Transform:
@@ -38672,8 +38671,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1 &674050792
 GameObject:
   m_ObjectHideFlags: 0
@@ -43005,8 +43004,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.7, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: 0.676, y: 1.265, z: 0}
 --- !u!1 &772939529
 GameObject:
   m_ObjectHideFlags: 0
@@ -46958,8 +46957,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &832614791
 GameObject:
   m_ObjectHideFlags: 0
@@ -50015,8 +50014,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &875855383
 GameObject:
   m_ObjectHideFlags: 0
@@ -60938,8 +60937,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &1048546039
 GameObject:
   m_ObjectHideFlags: 0
@@ -68773,8 +68772,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: -0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: -0.676, y: 1.265, z: 0}
 --- !u!1 &1197148685
 GameObject:
   m_ObjectHideFlags: 0
@@ -71840,8 +71839,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.7, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: 0.676, y: 1.265, z: 0}
 --- !u!1 &1244054702
 GameObject:
   m_ObjectHideFlags: 0
@@ -81157,7 +81156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba3379f9e3ff2274aa804b115db78cb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CursorController
-  hideCursorAtStart: 1
+  hideCursor: 1
 --- !u!4 &1415606597
 Transform:
   m_ObjectHideFlags: 0
@@ -92957,8 +92956,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &1648448844
 GameObject:
   m_ObjectHideFlags: 0
@@ -98651,8 +98650,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1 &1757938401
 GameObject:
   m_ObjectHideFlags: 0
@@ -99400,7 +99399,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -101522,8 +101521,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 1}
-  m_Center: {x: 0.5, y: 1.5, z: 0}
+  m_Size: {x: 1, y: 2.92, z: 0.1}
+  m_Center: {x: 0.5, y: 1.44, z: 0}
 --- !u!1 &1810752152
 GameObject:
   m_ObjectHideFlags: 0
@@ -101972,8 +101971,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: -0.8, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.57, z: 0.26}
+  m_Center: {x: -0.676, y: 1.265, z: 0}
 --- !u!1 &1818751231
 GameObject:
   m_ObjectHideFlags: 0
@@ -106682,8 +106681,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: -0.7}
+  m_Size: {x: 0.22, y: 2.66, z: 1.43}
+  m_Center: {x: 0, y: 1.314, z: -0.67}
 --- !u!1 &1906624459
 GameObject:
   m_ObjectHideFlags: 0
@@ -108397,8 +108396,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 1}
-  m_Center: {x: -0.5, y: 1.5, z: 0}
+  m_Size: {x: 1, y: 2.92, z: 0.1}
+  m_Center: {x: -0.5, y: 1.44, z: 0}
 --- !u!1 &1937814142
 GameObject:
   m_ObjectHideFlags: 0
@@ -109146,8 +109145,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3, z: 2}
-  m_Center: {x: 0, y: 1.5, z: 0.65}
+  m_Size: {x: 0.26, y: 2.57, z: 1.46}
+  m_Center: {x: 0, y: 1.265, z: 0.676}
 --- !u!1 &1953078435
 GameObject:
   m_ObjectHideFlags: 0
@@ -112208,8 +112207,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 3, z: 1}
-  m_Center: {x: 0.7, y: 1.5, z: 0}
+  m_Size: {x: 1.46, y: 2.63, z: 0.23}
+  m_Center: {x: 0.676, y: 1.31, z: 0.006}
 --- !u!1 &1997609713
 GameObject:
   m_ObjectHideFlags: 0
@@ -116638,7 +116637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7653e84755e31d4ba086ea366a48031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
-  interactDistance: 1.25
+  interactDistance: 1.5
   interactableLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -132035,7 +132034,7 @@ GameObject:
   - component: {fileID: 1879677984839206101}
   - component: {fileID: 1905085493103210013}
   - component: {fileID: 1897236581945075695}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132073,7 +132072,7 @@ GameObject:
   - component: {fileID: 1908847590849504103}
   - component: {fileID: 1897856842876207479}
   - component: {fileID: 1937238496808916095}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132091,7 +132090,7 @@ GameObject:
   - component: {fileID: 1879222719794485945}
   - component: {fileID: 1905184383771606029}
   - component: {fileID: 1896407234239637233}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132148,7 +132147,7 @@ GameObject:
   - component: {fileID: 1905844360916014401}
   - component: {fileID: 1896342269958361611}
   - component: {fileID: 1937143543199879205}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_R_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132167,7 +132166,7 @@ GameObject:
   - component: {fileID: 1905643587255789591}
   - component: {fileID: 1898031591931286063}
   - component: {fileID: 1937126681779145527}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132201,7 +132200,7 @@ GameObject:
   - component: {fileID: 1876668030891490451}
   - component: {fileID: 1908808931436189005}
   - component: {fileID: 1896517074862094967}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132219,7 +132218,7 @@ GameObject:
   - component: {fileID: 1876757552086284367}
   - component: {fileID: 1908899834552767723}
   - component: {fileID: 1898203538395802261}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132257,7 +132256,7 @@ GameObject:
   - component: {fileID: 1905212061008870485}
   - component: {fileID: 1896369051342898561}
   - component: {fileID: 1940229887383068223}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132276,7 +132275,7 @@ GameObject:
   - component: {fileID: 1906022176223424159}
   - component: {fileID: 1896268695053183835}
   - component: {fileID: 1937169515427295429}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132295,7 +132294,7 @@ GameObject:
   - component: {fileID: 1905198106482461665}
   - component: {fileID: 1896438451244210403}
   - component: {fileID: 1940400611514624221}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Roof_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132332,7 +132331,7 @@ GameObject:
   - component: {fileID: 1879203841261913679}
   - component: {fileID: 1908799594845962145}
   - component: {fileID: 1897871350942691105}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132350,7 +132349,7 @@ GameObject:
   - component: {fileID: 1879521664728575529}
   - component: {fileID: 1906056784453228505}
   - component: {fileID: 1897715845024032521}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132387,7 +132386,7 @@ GameObject:
   - component: {fileID: 1879592153774426851}
   - component: {fileID: 1905905325982548303}
   - component: {fileID: 1898121007599313103}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132425,7 +132424,7 @@ GameObject:
   - component: {fileID: 1876561790826701885}
   - component: {fileID: 1905769184615947753}
   - component: {fileID: 1897844454298857879}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132443,7 +132442,7 @@ GameObject:
   - component: {fileID: 1879494316281833483}
   - component: {fileID: 1905135591728760373}
   - component: {fileID: 1896358042835210745}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132462,7 +132461,7 @@ GameObject:
   - component: {fileID: 1908889136255376515}
   - component: {fileID: 1897822465050656693}
   - component: {fileID: 1937278901707090699}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132518,7 +132517,7 @@ GameObject:
   - component: {fileID: 1879477155277333703}
   - component: {fileID: 1905029758448961533}
   - component: {fileID: 1896279372984001407}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132556,7 +132555,7 @@ GameObject:
   - component: {fileID: 1905209546404730683}
   - component: {fileID: 1897825345065448933}
   - component: {fileID: 1937382834723760167}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132574,7 +132573,7 @@ GameObject:
   - component: {fileID: 1876383628872130707}
   - component: {fileID: 1905163996568621311}
   - component: {fileID: 1898199168348150595}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132592,7 +132591,7 @@ GameObject:
   - component: {fileID: 1876494182062195091}
   - component: {fileID: 1905865152162041517}
   - component: {fileID: 1897852071732715549}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132611,7 +132610,7 @@ GameObject:
   - component: {fileID: 1905884133280386039}
   - component: {fileID: 1897745547354064049}
   - component: {fileID: 1940337158446586585}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132630,7 +132629,7 @@ GameObject:
   - component: {fileID: 1908752996686437479}
   - component: {fileID: 1896273787550993563}
   - component: {fileID: 1940209906582415739}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132667,7 +132666,7 @@ GameObject:
   - component: {fileID: 1876619603217781653}
   - component: {fileID: 1905797186108999473}
   - component: {fileID: 1896401460570192631}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132724,7 +132723,7 @@ GameObject:
   - component: {fileID: 1906068614146025645}
   - component: {fileID: 1898250957277775531}
   - component: {fileID: 1940277559353592687}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_L_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132743,7 +132742,7 @@ GameObject:
   - component: {fileID: 1906049206347183761}
   - component: {fileID: 1897732689311206905}
   - component: {fileID: 1939936102543488253}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132761,7 +132760,7 @@ GameObject:
   - component: {fileID: 1879410050787986523}
   - component: {fileID: 1908863075652925027}
   - component: {fileID: 1896240601652088991}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Roof_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132798,7 +132797,7 @@ GameObject:
   - component: {fileID: 1876666342716456573}
   - component: {fileID: 1908779841660957869}
   - component: {fileID: 1897195614550843653}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132817,7 +132816,7 @@ GameObject:
   - component: {fileID: 1908761626731853049}
   - component: {fileID: 1897941820616943897}
   - component: {fileID: 1940152934393689941}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132836,7 +132835,7 @@ GameObject:
   - component: {fileID: 1905757230386546911}
   - component: {fileID: 1897877686012921971}
   - component: {fileID: 1940344351193890825}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132854,7 +132853,7 @@ GameObject:
   - component: {fileID: 1876435995649356021}
   - component: {fileID: 1905901685167524985}
   - component: {fileID: 1897175445609475669}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_R_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132872,7 +132871,7 @@ GameObject:
   - component: {fileID: 1876796378928118991}
   - component: {fileID: 1905658555980260859}
   - component: {fileID: 1896382326315379735}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132906,7 +132905,7 @@ GameObject:
   - component: {fileID: 1876594412548658873}
   - component: {fileID: 1908727425355030807}
   - component: {fileID: 1896336082897793473}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132943,7 +132942,7 @@ GameObject:
   - component: {fileID: 1879426503607059961}
   - component: {fileID: 1905822493357519811}
   - component: {fileID: 1897768828846607675}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132962,7 +132961,7 @@ GameObject:
   - component: {fileID: 1905149117753787493}
   - component: {fileID: 1897827017691794217}
   - component: {fileID: 1937181925393598063}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132981,7 +132980,7 @@ GameObject:
   - component: {fileID: 1908944099723245221}
   - component: {fileID: 1898003387473514611}
   - component: {fileID: 1937223244848571561}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -132999,7 +132998,7 @@ GameObject:
   - component: {fileID: 1876420606802500571}
   - component: {fileID: 1906035341805172747}
   - component: {fileID: 1897787961894744981}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133018,7 +133017,7 @@ GameObject:
   - component: {fileID: 1905992662664017839}
   - component: {fileID: 1898114598548104575}
   - component: {fileID: 1937343480997383643}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133037,7 +133036,7 @@ GameObject:
   - component: {fileID: 1905960660690586601}
   - component: {fileID: 1896409412017103203}
   - component: {fileID: 1937208388186182675}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133055,7 +133054,7 @@ GameObject:
   - component: {fileID: 1879451520678326329}
   - component: {fileID: 1906106655724592029}
   - component: {fileID: 1897749434917728039}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133092,7 +133091,7 @@ GameObject:
   - component: {fileID: 1879602053584224687}
   - component: {fileID: 1905693188637167305}
   - component: {fileID: 1896401109942557323}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133186,7 +133185,7 @@ GameObject:
   - component: {fileID: 1876529199819785819}
   - component: {fileID: 1905626886701824281}
   - component: {fileID: 1897710119718681321}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_L_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133205,7 +133204,7 @@ GameObject:
   - component: {fileID: 1905931796975518317}
   - component: {fileID: 1898265439465496389}
   - component: {fileID: 1940348576828777463}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133223,7 +133222,7 @@ GameObject:
   - component: {fileID: 1876539935944037115}
   - component: {fileID: 1908909502645424391}
   - component: {fileID: 1897950288959662915}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133260,7 +133259,7 @@ GameObject:
   - component: {fileID: 1876453041621426849}
   - component: {fileID: 1905993030277922881}
   - component: {fileID: 1896409656379657595}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133279,7 +133278,7 @@ GameObject:
   - component: {fileID: 1908756457075069939}
   - component: {fileID: 1896286918366472833}
   - component: {fileID: 1940253272142469975}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133297,7 +133296,7 @@ GameObject:
   - component: {fileID: 1879217371611253121}
   - component: {fileID: 1905147345861874833}
   - component: {fileID: 1897755948716247193}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_L_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133315,7 +133314,7 @@ GameObject:
   - component: {fileID: 1876330536046519503}
   - component: {fileID: 1905120116771511683}
   - component: {fileID: 1898090330189565557}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133334,7 +133333,7 @@ GameObject:
   - component: {fileID: 1905996362766296287}
   - component: {fileID: 1897198157237336135}
   - component: {fileID: 1937117374531117701}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133352,7 +133351,7 @@ GameObject:
   - component: {fileID: 1876638271737164387}
   - component: {fileID: 1905602825262715493}
   - component: {fileID: 1896407593872348037}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133370,7 +133369,7 @@ GameObject:
   - component: {fileID: 1879217359805677539}
   - component: {fileID: 1906037851416637217}
   - component: {fileID: 1896562310406564469}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133407,7 +133406,7 @@ GameObject:
   - component: {fileID: 1879369235598995061}
   - component: {fileID: 1905767677110823511}
   - component: {fileID: 1897993106320213697}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133425,7 +133424,7 @@ GameObject:
   - component: {fileID: 1876706086297432461}
   - component: {fileID: 1905085946220314715}
   - component: {fileID: 1896365257827395493}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133444,7 +133443,7 @@ GameObject:
   - component: {fileID: 1905638952394254223}
   - component: {fileID: 1896517993757641761}
   - component: {fileID: 1937201639651164359}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -133462,7 +133461,7 @@ GameObject:
   - component: {fileID: 1876396620057420967}
   - component: {fileID: 1905797486861030727}
   - component: {fileID: 1897170536855063967}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162590,7 +162589,7 @@ GameObject:
   - component: {fileID: 1876354063439075837}
   - component: {fileID: 1905748300113726193}
   - component: {fileID: 1896377282854779781}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162627,7 +162626,7 @@ GameObject:
   - component: {fileID: 1876550721583348859}
   - component: {fileID: 1905929968559832425}
   - component: {fileID: 1897943230672891063}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_Window_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162646,7 +162645,7 @@ GameObject:
   - component: {fileID: 1905762890543745829}
   - component: {fileID: 1897181408079120019}
   - component: {fileID: 1937260432975246785}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162664,7 +162663,7 @@ GameObject:
   - component: {fileID: 1879628257796064759}
   - component: {fileID: 1905949823885998529}
   - component: {fileID: 1896400073399091225}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Balkon_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162702,7 +162701,7 @@ GameObject:
   - component: {fileID: 1905720765651716813}
   - component: {fileID: 1897899894364903451}
   - component: {fileID: 1940412745282162743}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162720,7 +162719,7 @@ GameObject:
   - component: {fileID: 1879615642830767131}
   - component: {fileID: 1905084531144035815}
   - component: {fileID: 1896281279883759467}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: DoorEntry_R_LOD_1
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162738,7 +162737,7 @@ GameObject:
   - component: {fileID: 1879494234296207497}
   - component: {fileID: 1905104199900818485}
   - component: {fileID: 1897936926272756271}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_Entry_Handle
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -162757,7 +162756,7 @@ GameObject:
   - component: {fileID: 1905927000415705237}
   - component: {fileID: 1897914031557827765}
   - component: {fileID: 1937167573883515661}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Door_Room_LOD_0
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -209807,7 +209806,7 @@ CharacterController:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   m_LayerOverridePriority: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
