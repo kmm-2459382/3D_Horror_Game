@@ -24332,7 +24332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeyItem
   keyId: "\u5C4B\u4E0A"
-  pickupSE: {fileID: 0}
+  pickupSE: {fileID: 8300000, guid: 0fb3360b0331ae040a770ecd77679f76, type: 3}
   volume: 0.8
   autoPickupOnTouch: 0
 --- !u!65 &395974764
@@ -41956,7 +41956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeyItem
   keyId: "\u4E8C\u968E\u5DE6\u306E\u90E8\u5C4B"
-  pickupSE: {fileID: 0}
+  pickupSE: {fileID: 8300000, guid: 0fb3360b0331ae040a770ecd77679f76, type: 3}
   volume: 0.8
   autoPickupOnTouch: 0
 --- !u!65 &740473750
@@ -121970,7 +121970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeyItem
   keyId: "\u4E00\u968E\u53F3\u306E\u90E8\u5C4B"
-  pickupSE: {fileID: 0}
+  pickupSE: {fileID: 8300000, guid: 0fb3360b0331ae040a770ecd77679f76, type: 3}
   volume: 0.8
   autoPickupOnTouch: 0
 --- !u!205 &85992841931272007
